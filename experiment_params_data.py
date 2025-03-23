@@ -1,12 +1,6 @@
 """
 DATASETS for Experiments
 """
-from src.models.oc_svm_model import OneClassSVMModel
-from src.models.random_forest_model import RandomForestModel
-from src.models.random_search_cv_model import RandomSearchCVModel
-from src.models.svc_model import SVCModel
-from src.models.unet_model import UnetModel, UnetModelAugmented
-from src.models.unet_test_model import UnetTestModel
 
 aircarbon3_datasets = {
     '80.jpg_dark_1': {

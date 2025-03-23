@@ -63,14 +63,14 @@ def select_pairs(similarities, labels):
     return selected_pairs
 
 
-def plot_similarity_heatmap(similarities):
-    for i, sim_matrix in enumerate(similarities):
-        if similarities[i].ndim != 2:
-            print(f"Cluster {i} is not a 2-d input: {similarities[i].shape}")
+def plot_similarity_heatmap(similarities, similarity_labels):
+    for cluster, sim_matrix in similarities.items():
+        if sim_matrix.ndim != 2:
+            print(f"Cluster {cluster} is not a 2-d input: {sim_matrix.shape}")
             continue
         plt.figure(figsize=(10, 8))
-        sns.heatmap(similarities[i], annot=True, cmap='coolwarm', cbar=True)
-        plt.title(f'Similarity Heatmap for Cluster {i}')
+        sns.heatmap(sim_matrix, annot=True, cmap='coolwarm', cbar=True)
+        plt.title(f'Similarity Heatmap for Cluster {cluster}\n{similarity_labels[cluster]}')
         plt.show(block=True)
 
 
@@ -151,23 +151,30 @@ def cluster_datasets(dataset_features, dataset_names):
     reduced_features = pca.fit_transform(dataset_features)
 
     plt.scatter(reduced_features[:, 0], reduced_features[:, 1], c=cluster_labels, cmap='viridis')
+    for i, name in enumerate(dataset_names):
+        plt.annotate(name, (reduced_features[i, 0], reduced_features[i, 1]))
     plt.xlabel("PCA Feature 1")
     plt.ylabel("PCA Feature 2")
     plt.title("Dataset Clusters in Reduced Feature Space")
     plt.show(block=True)
 
-    return cluster_labels
+    # Create a dictionary to reference dataset names to cluster labels
+    clustered_datasets = {name: label for name, label in zip(dataset_names, cluster_labels)}
+
+    return cluster_labels, clustered_datasets
 
 
-def compute_similarity_within_clusters(features, labels):
+def compute_similarity_within_clusters(features, labels, names):
     similarities = {}
+    similarity_labels = {}
     for cluster in np.unique(labels):
         indices = np.where(labels == cluster)[0]
         subset = features[indices]
         sim_matrix = cosine_similarity(subset)
         np.fill_diagonal(sim_matrix, np.nan)  # Ignore self-comparisons
         similarities[cluster] = sim_matrix
-    return similarities
+        similarity_labels[cluster] = ', '.join([name for name, label in names.items() if label == cluster])
+    return similarities, similarity_labels
 
 
 def main():
@@ -190,14 +197,13 @@ def main():
     dataset_features = np.array(dataset_features)
     print("Extracted Features Shape:", dataset_features.shape)  # (30, 5) if 30 datasets
 
-    cluster_labels = cluster_datasets(dataset_features, dataset_names)
+    cluster_labels, clustered_datasets = cluster_datasets(dataset_features, dataset_names)
 
     # ------------------------------------------------
     # Compute similarity within clusters and select dataset pairs
     # ------------------------------------------------
-    similarities = compute_similarity_within_clusters(dataset_features, cluster_labels)
-
-    plot_similarity_heatmap(similarities)
+    similarities, similarity_labels = compute_similarity_within_clusters(dataset_features, cluster_labels, clustered_datasets)
+    plot_similarity_heatmap(similarities, similarity_labels)
 
     # ------------------------------------------------
     # Compute MCC scores for selected dataset pairs

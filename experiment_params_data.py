@@ -357,16 +357,16 @@ DATASETS = {
     **mvtec_toothbrush,  # missing toothbrush dataset for later experimentation
     **cracks_datasets,
     # **cracks_datasets_reduced, # <-- svc(rbf,0.1,1)
-    # **mvtec_cable_dataset,
-    #**metal_datasets,
-    #**textile_datasets,
-    #**mvtec_datasets,
-    #**aircarbon3_datasets_v2,
-    #**aircarbon3_datasets,
-    #**aircarbon2_datasets,
-    #**pultrusion_datasets,
-    #**severstal_plain,
-    #**spule_upside_0315,
-    #**maipreform_datasets
+    **mvtec_cable_dataset,
+    **metal_datasets,
+    **textile_datasets,
+    **mvtec_datasets,
+    **aircarbon3_datasets_v2,
+    **aircarbon3_datasets,
+    **aircarbon2_datasets,
+    **pultrusion_datasets,
+    **severstal_plain,
+    **spule_upside_0315,
+    **maipreform_datasets
     # **maipreform_datasets_reduced # <-- svc(rbf,0.1,1)
 }

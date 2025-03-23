@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats as stats
@@ -12,6 +14,7 @@ import cv2
 import glob
 from skimage.feature import graycomatrix, graycoprops
 
+from env_vars import DS_ROOT_PATH
 from experiment_params_data import DATASETS
 
 
@@ -62,10 +65,13 @@ def select_pairs(similarities, labels):
 
 def plot_similarity_heatmap(similarities):
     for i, sim_matrix in enumerate(similarities):
+        if similarities[i].ndim != 2:
+            print(f"Cluster {i} is not a 2-d input: {similarities[i].shape}")
+            continue
         plt.figure(figsize=(10, 8))
-        sns.heatmap(sim_matrix, annot=True, cmap='coolwarm', cbar=True)
+        sns.heatmap(similarities[i], annot=True, cmap='coolwarm', cbar=True)
         plt.title(f'Similarity Heatmap for Cluster {i}')
-        plt.show()
+        plt.show(block=True)
 
 
 def generate_random_binary_mask(shape=(256, 256)):
@@ -112,10 +118,10 @@ def compute_anova_and_correlation(mcc_results):
     print(f"Pearson Correlation: r={corr:.3f}, p={p_corr:.3f}")
 
 
-def cluster_datasets(dataset_features):
+def cluster_datasets(dataset_features, dataset_names):
     # Determine the optimal number of clusters (Elbow Method)
     inertia = []
-    K_range = range(2, 10)
+    K_range = range(2, 10 if len(dataset_features) >= 10 else len(dataset_features))
 
     for k in K_range:
         kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
@@ -126,10 +132,17 @@ def cluster_datasets(dataset_features):
     plt.xlabel("Number of Clusters (K)")
     plt.ylabel("Inertia (Sum of Squared Distances)")
     plt.title("Elbow Method for Optimal K")
-    plt.show()
+    plt.show(block=True)
 
     # Cluster using the optimal K (e.g., k=6 based on elbow)
     optimal_k = 6
+
+    manual_k = input("Enter the optimal K value: ")
+    try:
+        optimal_k = int(manual_k)
+    except ValueError:
+        print("Invalid input. Using default K=6.")
+
     kmeans = KMeans(n_clusters=optimal_k, random_state=42, n_init=10)
     cluster_labels = kmeans.fit_predict(dataset_features)
 
@@ -141,7 +154,7 @@ def cluster_datasets(dataset_features):
     plt.xlabel("PCA Feature 1")
     plt.ylabel("PCA Feature 2")
     plt.title("Dataset Clusters in Reduced Feature Space")
-    plt.show()
+    plt.show(block=True)
 
     return cluster_labels
 
@@ -162,16 +175,22 @@ def main():
     # Extract features for each dataset (assume we have folders for each dataset)
     # ------------------------------------------------
     dataset_features = []
-    for category in DATASETS.keys():
-        for k in DATASETS[category]:
-            folder = DATASETS[category][k]
-            images = [cv2.imread(img) for img in glob.glob(f"{folder}/*.png")[:10]]  # Sample 10 images per dataset
-            dataset_features.append(np.mean([extract_image_statistics(img) for img in images], axis=0))
+    dataset_names = []
+    for k in DATASETS.keys():
+        folder = os.path.join(DS_ROOT_PATH, DATASETS[k]['train'], "images")
+        images = [cv2.imread(img) for img in
+                  glob.glob(f"{folder}/*.[jJ][pP][gG]") + glob.glob(f"{folder}/*.[pP][nN][gG]") + glob.glob(
+                      f"{folder}/*.[bB][mM][pP]")[:10]]  # Sample 10 images per dataset
+        if len(images) == 0:
+            print(f"No images found in {folder}")
+            continue
+        dataset_features.append(np.mean([extract_image_statistics(img) for img in images], axis=0))
+        dataset_names.append(k)
 
     dataset_features = np.array(dataset_features)
     print("Extracted Features Shape:", dataset_features.shape)  # (30, 5) if 30 datasets
 
-    cluster_labels = cluster_datasets(dataset_features)
+    cluster_labels = cluster_datasets(dataset_features, dataset_names)
 
     # ------------------------------------------------
     # Compute similarity within clusters and select dataset pairs
@@ -198,7 +217,7 @@ def main():
     print(f"Bootstrap MCC mean: {mean_mcc:.3f} (95% CI: {ci_low:.3f} - {ci_high:.3f})")
     sns.histplot(mcc_values, kde=True)
     plt.title("Bootstrapped MCC Distribution")
-    plt.show()
+    plt.show(block=True)
 
     # ------------------------------------------------
     # ANOVA and correlation analysis

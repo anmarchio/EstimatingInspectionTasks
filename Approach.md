@@ -2,10 +2,29 @@
 
 ## Step 1: Dataset Splitting & Similarity Measurement
 
-### 1.1. Split the 30 datasets into two equal sets:
+### 1.1. Compute Similarities for All Dataset Pairs
 
-* Set A (Reference Set) → 15 datasets with their engineered filter pipelines.
-* Set B (Evaluation Set) → 15 datasets that will be tested with pipelines from Set A.
+* We have 30 datasets.
+* Compute the pairwise similarity between every dataset, resulting in a 30 × 30 similarity matrix.
+* Since similarity is symmetric, we only need the upper triangular part, excluding the diagonal:
+  * `(30 x 29) / 2 = 435` similarity computations
+* Similarity Metrics per Dataset Pair (for each of the 435 computations):
+  * Histogram of Gradient (HOG) + Cosine Similarity
+  * Structural Similarity Index (SSIM) over representative images
+  * Deep Feature Similarity (optional, using CNN embeddings)
+
+#### Reduce Pairwise Similarity Computations
+* Instead of computing all 435 pairwise similarities, we can:
+  * Cluster the 30 datasets into K groups (e.g., K=5 or K=6) based on image statistics (like mean intensity, texture features, or feature embeddings).
+  * Within each cluster, compute all pairwise similarities (local comparisons).
+  * Between clusters, compute only representative similarities (e.g., centroid-based).
+
+* New similarity computations:
+  * Assume K=6 clusters, each with ~5 datasets.
+  * Intra-cluster: `((5 x 4) / 2) x 6 = 60`
+  * Inter-cluster: `6×6=36 (each cluster compared to every other)`
+
+New total: ~96 similarity computations (instead of 435).
 
 ## 1.2. Compute Similarity Between Datasets
 For each dataset in Set A, compute its similarity with every dataset in Set B using:
@@ -24,6 +43,21 @@ For each dataset in Set A, compute its similarity with every dataset in Set B us
   * Select the most similar, medium similar, and least similar dataset for each pair.
 
 This results in three groups of dataset pairs: High, Medium, and Low Similarity.
+
+#### Reduce MCC Evaluations
+
+* Instead of computing 900 MCC scores, we can:
+  * Use only a subset of dataset pairs based on similarity ranking.
+  * Instead of testing all 29 datasets for each dataset, test only:
+  * Top-3 most similar datasets
+  * 3 medium-similarity datasets
+  * 3 least similar datasets
+
+* New MCC computations:
+  * Each dataset evaluates only 9 others instead of 29 → `30 × 9 = 270` MCC evaluations.
+  * Plus 30 self-MCC computations for baselines.
+
+New total: ~300 MCC computations (instead of 900).
 
 # Step 2: Apply Filter Pipelines Across Pairs
 
@@ -76,6 +110,12 @@ Compute mean and variance of MCC differences across all pairs.
 * Shuffle dataset pairings and re-run pipeline evaluation on randomly assigned datasets.
 * Compare randomized MCC performance with similarity-based MCC performance.
 * If similarity-based pairs perform significantly better than random, it validates the importance of dataset similarity.
+
+#### Statistical Tests (Remain Unchanged)
+ 
+* ANOVA on MCC drops (High, Medium, Low similarity groups)
+* Pearson correlation between similarity and MCC drop
+* Randomized baseline check (same number of samples as reduced MCC set)
 
 ### Step 4: Interpretation & Conclusion
 

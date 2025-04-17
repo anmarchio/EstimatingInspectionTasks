@@ -181,6 +181,7 @@ def main():
     # ------------------------------------------------
     # Extract features for each dataset (assume we have folders for each dataset)
     # ------------------------------------------------
+    print("Extracting features from datasets...")
     dataset_features = []
     dataset_names = []
     for k in DATASETS.keys():
@@ -202,12 +203,14 @@ def main():
     # ------------------------------------------------
     # Compute similarity within clusters and select dataset pairs
     # ------------------------------------------------
+    print("Computing similarity within clusters...")
     similarities, similarity_labels = compute_similarity_within_clusters(dataset_features, cluster_labels, clustered_datasets)
     plot_similarity_heatmap(similarities, similarity_labels)
 
     # ------------------------------------------------
     # Compute MCC scores for selected dataset pairs
     # ------------------------------------------------
+    print("Computing MCC scores for dataset pairs...")
     selected_pairs = select_pairs(similarities, cluster_labels)
     print("Selected dataset pairs:", selected_pairs)
 

@@ -174,6 +174,15 @@ def compute_similarity_within_clusters(features, labels, names):
         np.fill_diagonal(sim_matrix, np.nan)  # Ignore self-comparisons
         similarities[cluster] = sim_matrix
         similarity_labels[cluster] = ', '.join([name for name, label in names.items() if label == cluster])
+
+    return similarities, similarity_labels
+
+
+def dummy_compute_similarity_within_clusters():
+    # Dummy Values for Tests
+    similarities = {0: np.random.rand(5, 5), 1: np.random.rand(4, 4)}
+    similarity_labels = {0: "Dataset A, Dataset B, Dataset C, Dataset D, Dataset E",
+                         1: "Dataset F, Dataset G, Dataset H, Dataset I"}
     return similarities, similarity_labels
 
 
@@ -184,6 +193,7 @@ def main():
     print("Extracting features from datasets...")
     dataset_features = []
     dataset_names = []
+    """
     for k in DATASETS.keys():
         folder = os.path.join(DS_ROOT_PATH, DATASETS[k]['train'], "images")
         images = [cv2.imread(img) for img in
@@ -194,23 +204,27 @@ def main():
             continue
         dataset_features.append(np.mean([extract_image_statistics(img) for img in images], axis=0))
         dataset_names.append(k)
-
     dataset_features = np.array(dataset_features)
     print("Extracted Features Shape:", dataset_features.shape)  # (30, 5) if 30 datasets
 
     cluster_labels, clustered_datasets = cluster_datasets(dataset_features, dataset_names)
+    """
 
     # ------------------------------------------------
     # Compute similarity within clusters and select dataset pairs
     # ------------------------------------------------
     print("Computing similarity within clusters...")
-    similarities, similarity_labels = compute_similarity_within_clusters(dataset_features, cluster_labels, clustered_datasets)
+    #similarities, similarity_labels = compute_similarity_within_clusters(dataset_features, cluster_labels, clustered_datasets)
+
+    similarities, similarity_labels = dummy_compute_similarity_within_clusters()
     plot_similarity_heatmap(similarities, similarity_labels)
 
     # ------------------------------------------------
     # Compute MCC scores for selected dataset pairs
     # ------------------------------------------------
     print("Computing MCC scores for dataset pairs...")
+    fake_cluster_labels = np.array([0, 0, 0, 1, 1, 1, 1, 0, 1])  # Beispielhafte Fake-Cluster-Labels für 9 Datensätze
+    cluster_labels = fake_cluster_labels  # Use the fake cluster labels for testing
     selected_pairs = select_pairs(similarities, cluster_labels)
     print("Selected dataset pairs:", selected_pairs)
 

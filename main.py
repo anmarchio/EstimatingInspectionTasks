@@ -186,19 +186,12 @@ def dummy_compute_similarity_within_clusters():
     return similarities, similarity_labels
 
 
-def main():
-    # ------------------------------------------------
-    # Extract features for each dataset (assume we have folders for each dataset)
-    # ------------------------------------------------
-    print("Extracting features from datasets...")
-    dataset_features = []
-    dataset_names = []
-    """
+def extract_features_from_datasets(FILEPATH):
     for k in DATASETS.keys():
         folder = os.path.join(DS_ROOT_PATH, DATASETS[k]['train'], "images")
         images = [cv2.imread(img) for img in
-                  glob.glob(f"{folder}/*.[jJ][pP][gG]") + glob.glob(f"{folder}/*.[pP][nN][gG]") + glob.glob(
-                      f"{folder}/*.[bB][mM][pP]")[:10]]  # Sample 10 images per dataset
+                    glob.glob(f"{folder}/*.[jJ][pP][gG]") + glob.glob(f"{folder}/*.[pP][nN][gG]") + glob.glob(
+                        f"{folder}/*.[bB][mM][pP]")[:10]]  # Sample 10 images per dataset
         if len(images) == 0:
             print(f"No images found in {folder}")
             continue
@@ -208,17 +201,51 @@ def main():
     print("Extracted Features Shape:", dataset_features.shape)  # (30, 5) if 30 datasets
 
     cluster_labels, clustered_datasets = cluster_datasets(dataset_features, dataset_names)
-    """
 
-    # ------------------------------------------------
-    # Compute similarity within clusters and select dataset pairs
-    # ------------------------------------------------
-    print("Computing similarity within clusters...")
-    #similarities, similarity_labels = compute_similarity_within_clusters(dataset_features, cluster_labels, clustered_datasets)
+    write to file
 
-    similarities, similarity_labels = dummy_compute_similarity_within_clusters()
-    plot_similarity_heatmap(similarities, similarity_labels)
 
+def show_menu():
+
+    print("STUDY: Retrieval of Pipelines by Similarity")
+    print("" + "=" * 50)
+    print("[0] Exit")
+    print("[1] Extract features from datasets")
+    print("[2] Compute similarity within clusters")
+    print("[3] Select dataset pairs based on similarity")
+    print("[4] Compute MCC scores for selected dataset pairs")
+    print("[5] Bootstrap MCC scores for statistical analysis")
+    print("[6] ANOVA and correlation analysis")
+    print("" + "-" * 50)
+    selection = input("Go to: ")
+
+    return selection
+
+def main():
+    selection = show_menu()
+
+    if selection == 0:
+        print("Exiting the program.")
+        return
+
+    if selection == 1:
+        # ------------------------------------------------
+        # Extract features for each dataset (assume we have folders for each dataset)
+        print("[1] Extracting features from datasets...")
+        # ------------------------------------------------
+        extract_features_from_datasets(FILEPATH)
+
+    if selection == 2:
+        # ------------------------------------------------
+        # Compute similarity within clusters and select dataset pairs
+        print("[2] Computing similarity within clusters...")
+        # ------------------------------------------------
+        #similarities, similarity_labels = compute_similarity_within_clusters(dataset_features, cluster_labels, clustered_datasets)
+
+        similarities, similarity_labels = dummy_compute_similarity_within_clusters()
+        plot_similarity_heatmap(similarities, similarity_labels)
+
+    raise NotImplementedError
     # ------------------------------------------------
     # Compute MCC scores for selected dataset pairs
     # ------------------------------------------------

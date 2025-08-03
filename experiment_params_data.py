@@ -1,6 +1,7 @@
 """
 DATASETS for Experiments
 """
+# from src.models.unet_test_model import UnetTestModel
 
 aircarbon3_datasets = {
     '80.jpg_dark_1': {
@@ -370,3 +371,14 @@ DATASETS = {
     **maipreform_datasets
     # **maipreform_datasets_reduced # <-- svc(rbf,0.1,1)
 }
+
+"""
+MODELS and Parameters
+"""
+#MODELS = {
+#    'resnet_embedding': ResNetEmbedding()
+#}
+
+#TEST_MODELS = {
+#    'unet': UnetTestModel()
+#}

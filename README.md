@@ -34,107 +34,98 @@ taskRetrieval/
 ```
 
 ## 🚀 Approach Overview
-The project pipeline analyzes segmentation datasets by extracting features, clustering them, computing similarities, and evaluating segmentation performance statistically.
+The project pipeline analyzes segmentation datasets by extracting feature embeddings, 
+computing similarities, and evaluating 
+segmentation performance statistically.
+
+#### 🔧 Steps:
+* Convert images to grayscale
+* Extract feature embeddings using a ResNet model
+* Compute the cosine similarity between feature vectors
+* Cross-Apply filter pipelines (CGP) to datasets
+* Compute the spearman corellation between dataset features and segmentation performance
 
 ### 🧩 1. Feature Extraction
 Goal: Represent each dataset through a vector of statistical and visual features.
 
-#### 🔧 Steps:
-* Convert images to grayscale
-* Compute intensity features: mean, std deviation
-* Apply Sobel filter for edge density
-* Extract GLCM texture features
+Use a pre-trained CNN (e.g., **ResNet-18**, **ResNet-50**, or **VGG-16**) to embed each image into a fixed-dimensional vector space.
 
-```python
-dataset_features = np.array(dataset_features)
-print("Extracted Features Shape:", dataset_features.shape)  # e.g. (30, 5)
-cluster_labels, clustered_datasets = cluster_datasets(dataset_features, dataset_names)
-```
+For example, remove the final classification layer and use the **penultimate layer** (e.g., a 512-dimensional vector for ResNet-18).
 
-📦 Output: Feature vectors representing each dataset.
+Let each image  
+&nbsp;&nbsp;&nbsp;&nbsp;_x_ ∈ ℝ<sup>H×W×3</sup>  
+be mapped to an embedding  
+&nbsp;&nbsp;&nbsp;&nbsp;_f(x)_ ∈ ℝ<sup>d</sup>.
 
-### 🧭 2. Clustering Datasets
-
-Goal: Group datasets based on their feature similarity.
-
-#### 📊 Steps:
-
-* Use Elbow Method to select the optimal number of clusters
-* Apply K-Means clustering
-* Visualize clusters in 2D using PCA
-
-🗂 Output: Cluster labels for all datasets
 
 ### 🔍 3. Similarity Computation
 Goal: Measure pairwise similarity within each dataset cluster.
 
-
-#### 📐 Steps:
 * Compute cosine similarity between dataset feature vectors
-* Generate similarity matrices per cluster
+* Cosine Similarity:
 
-```python
-print("Computing similarity within clusters...")
-similarities, similarity_labels = compute_similarity_within_clusters(dataset_features, cluster_labels, clustered_datasets)
-plot_similarity_heatmap(similarities, similarity_labels)
-```
-📦 Output: Cluster-wise similarity matrices
+&nbsp;&nbsp;&nbsp;&nbsp;_cosine(x, y) = (x ⋅ y) / (||x|| ||y||)_
 
-### 🤝 4. Dataset Pair Selection
-
-Goal: Select meaningful dataset pairs for evaluation.
-
-#### 📋 Steps:
-
-Identify dataset pairs that are:
-* Most similar
-* Moderately similar
-* Least similar
-* Store these for performance benchmarking
-
-📦 Output: Dataset pairs for further analysis
-
-### 📏 5. MCC Score Computation
+### 📏 4. MCC Score Computation
 Goal: Evaluate segmentation performance on selected dataset pairs.
 
-#### ⚙️ Steps:
+* Cross-Apply CGP pipelines between each pair of datasets
+* Compute the Matthews Correlation Coefficient (MCC) for each pair
 
-* Generate binary masks to simulate ground truth and predictions
-* Compute Matthews Correlation Coefficient (MCC)
+&nbsp;&nbsp;&nbsp;&nbsp;_MCC = (TP × TN - FP × FN) / sqrt((TP + FP)(TP + FN)(TN + FP)(TN + FN))_
 
-```python
-print("Computing MCC scores for dataset pairs...")
-selected_pairs = select_pairs(similarities, cluster_labels)
-print("Selected dataset pairs:", selected_pairs)
+Where:
+* TP = True Positives
+* TN = True Negatives
+* FP = False Positives
+* FN = False Negatives
 
-raise NotImplementedError
-mcc_results = compute_mcc_selected_pairs(selected_pairs)
-```
+### 📊 🧠 Statistical Hypothesis
+* Null Hypothesis (H0): There is no correlation between dataset similarity and cross-application performance.
+* Alternative Hypothesis (H1): Higher similarity does lead to better cross-application performance.
 
-📦 Output: MCC scores for each pair
+_If the p-value < 0.05, you reject H0 and conclude that the correlation is statistically significant._
 
-### 📊 6. Statistical Analysis
-Goal: Statistically validate how similarity impacts segmentation performance.
+#### Spearman Correlation
 
-#### 📈 Steps:
+* Start with Spearman correlation (rank-based, non-parametric, robust to non-linear relationships):
 
-* Use bootstrapping to compute confidence intervals
-* Conduct ANOVA across similarity groups
-* Calculate Pearson correlation between similarity and MCC
+&nbsp;&nbsp;&nbsp;&nbsp;_ρ = 1 - (6 Σ d<sub>i</sub><sup>2</sup>) / (n(n<sup>2</sup> - 1))_
 
-```python
-mcc_values = [m[2] for m in mcc_results]
-mean_mcc, ci_low, ci_high = bootstrap_mcc(mcc_values)
+Where:
+* _d<sub>i</sub>_ = difference between ranks of each pair
+* _n_ = number of pairs
+* ρ = Spearman correlation coefficient (ranges from -1 to 1)
+* If ρ > 0, it indicates a positive correlation between similarity and performance.
+* If ρ < 0, it indicates a negative correlation.
+* If |ρ| is close to 1, it indicates a strong correlation.
+* If |ρ| is close to 0, it indicates a weak correlation.
+* If p < 0.05, the correlation is statistically significant.
+* If p > 0.05, the correlation is not statistically significant.
+ 
 
-print(f"Bootstrap MCC mean: {mean_mcc:.3f} (95% CI: {ci_low:.3f} - {ci_high:.3f})")
-sns.histplot(mcc_values, kde=True)
-plt.title("Bootstrapped MCC Distribution")
-plt.show(block=True)
+#### Linear Regression
 
-compute_anova_and_correlation(mcc_results)
-```
+Fit a simple regression model to quantify how much similarity influences performance:
 
-📦 Output: Statistical insight into the relationship between similarity and performance
+&nbsp;&nbsp;&nbsp;&nbsp;_y = β<sub>0</sub> + β<sub>1</sub>x + ε_
+
+_Where:_
+* _y_ = MCC score (segmentation performance)
+* _x_ = similarity score (cosine similarity)
+* β<sub>0</sub> = intercept
+* β<sub>1</sub> = slope (how much performance changes with similarity)
+* ε = error term (residuals)
+
+#### Stratified Group Comparison
+Divide dataset pairs into e.g. 3 bins:
+* High similarity (top 33%)
+* Medium similarity
+* Low similarity (bottom 33%)
+
+Then run Mann-Whitney U-tests (non-parametric) between performance distributions of the groups:
+
+*If p < 0.05, high similarity groups statistically outperform low similarity ones.*
 
 ### 🎯 Scientific Goals
 
@@ -142,13 +133,9 @@ compute_anova_and_correlation(mcc_results)
 
 Gain insight into structural and visual similarities across datasets.
 
-* 🧪 Evaluate Segmentation Performance
+* 🧪 Evaluate Segmentation Performance: Measure how performance varies with dataset similarity.
 
-Measure how performance varies with dataset similarity.
-
-* 📐 Validate Statistically
-
-Use robust methods (bootstrapping, ANOVA, correlation) to confirm hypotheses.
+* 📐 Validate Statistically: Use robust methods (correlation, Mann-Whitney-U) to confirm hypotheses.
 
 ## 📖 How to Cite
 If you use this code or ideas from our paper, please cite:

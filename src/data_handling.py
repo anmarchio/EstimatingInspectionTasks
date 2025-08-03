@@ -32,9 +32,9 @@ def write_df_to_csv(df):
     if not os.path.exists(result_dir):
         os.makedirs(result_dir)
 
-    csv_string = df.to_csv(index=True)
-    with open(result_file, 'w', encoding='utf-8') as f:
-        f.write(csv_string)
+    csv_string = df.to_csv(result_file, index=False)
+
+    return result_file
 
 
 def print_table(filepath: str):

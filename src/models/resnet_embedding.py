@@ -82,5 +82,4 @@ def compute_similarity_matrix(dataset_names, dataset_paths):
 
     print_similarity_matrix(df)
 
-    write_df_to_csv(df)
-
+    return write_df_to_csv(df)

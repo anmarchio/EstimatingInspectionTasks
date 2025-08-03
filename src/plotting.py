@@ -14,7 +14,8 @@ def plot_similarity_heatmap(file_path):
     """Reads the similarity matrix from a CSV file."""
     similarity_df = None
     try:
-        similarity_df = pd.read_csv(file_path, index_col=0)
+        with open(file_path, 'r', encoding='utf-8') as f:
+            similarity_df = pd.read_csv(f, index_col=0)
         print("Similarity matrix loaded successfully.")
     except FileNotFoundError:
         print(f"Error: File not found at {file_path}")

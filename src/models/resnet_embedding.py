@@ -80,6 +80,8 @@ def compute_similarity_matrix(dataset_names, dataset_paths):
     # ---------- SAVE TO CSV ----------
     df = pd.DataFrame(similarity_matrix, index=dataset_names, columns=dataset_names)
 
-    print_similarity_matrix(df)
+    result_path = write_df_to_csv(df)
 
-    return write_df_to_csv(df)
+    print_similarity_matrix(result_path)
+
+    return result_path

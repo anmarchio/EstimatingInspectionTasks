@@ -39,27 +39,60 @@ def extract_image_statistics(image):
     return [mean_intensity, std_intensity, edge_density, contrast, entropy]
 
 
-def compute_correlation_analysis():
-    result_dir = os.path.join(RESULTS_PATH)
+def compute_correlation_analysis(similarity_filepath, cross_results_dir):
+    # --- Step 1: Load similarity matrix
+    similarity_df = pd.read_csv(similarity_filepath, index_col=0)
 
-    csv_files = [file for file in os.listdir(result_dir) if file.endswith(".csv")]
+    # Normalize column and index names for matching
+    similarity_df.columns = similarity_df.columns.astype(str).str.strip()
+    similarity_df.index = similarity_df.index.astype(str).str.strip()
 
-    for file in csv_files:
-        similarity_df = read_df(file)
+    # --- Step 2: Prepare to load cross-application results
+    all_rows = []
 
-        # Assuming df is your DataFrame with columns: similarity, performance
-        spearman_corr, spearman_p = spearmanr(similarity_df['similarity'], similarity_df['performance'])
-        pearson_corr, pearson_p = pearsonr(similarity_df['similarity'], similarity_df['performance'])
+    # Helper function to normalize dataset names from filenames
+    def normalize_name(s):
+        return s.replace("_mean_pipeline", "").replace(".txt", "").strip()
 
-        print(f"Spearman correlation: {spearman_corr:.3f} (p={spearman_p:.5f})")
-        print(f"Pearson correlation:  {pearson_corr:.3f} (p={pearson_p:.5f})")
+    # --- Step 3: Load each result file and collect scores
+    for fname in os.listdir(cross_results_dir):
+        if not fname.endswith("_mean_pipeline.txt"):
+            continue
 
-        # ------------ VISUALIZATION ----------
-        sns.regplot(x='similarity', y='performance', data=similarity_df, scatter_kws={'alpha': 0.3})
-        plt.title("Similarity vs Pipeline Transfer Performance")
-        plt.xlabel("Cosine Similarity")
-        plt.ylabel("Cross-Application Performance")
-        plt.show()
+        src_dataset = normalize_name(fname)
+        path = os.path.join(cross_results_dir, fname)
+
+        df = pd.read_csv(path, sep=";")
+        for _, row in df.iterrows():
+            tgt_dataset = normalize_name(row[2])
+            try:
+                similarity = similarity_df.loc[src_dataset, tgt_dataset]
+            except KeyError:
+                continue  # Skip pairs not found in similarity matrix
+
+            all_rows.append({
+                "source": src_dataset,
+                "target": tgt_dataset,
+                "similarity": similarity,
+                "cross_score": float(row['CrossScore'])
+            })
+
+    # --- Step 4: Create dataframe for analysis
+    correlation_df = pd.DataFrame(all_rows)
+
+    # --- Step 5: Compute correlations
+    pearson_corr, pearson_p = pearsonr(correlation_df["similarity"], correlation_df["cross_score"])
+    spearman_corr, spearman_p = spearmanr(correlation_df["similarity"], correlation_df["cross_score"])
+
+    print("✅ Pearson correlation:", pearson_corr, " (p =", pearson_p, ")")
+    print("✅ Spearman correlation:", spearman_corr, " (p =", spearman_p, ")")
+
+    # ------------ VISUALIZATION ----------
+    sns.regplot(x='similarity', y='performance', data=similarity_df, scatter_kws={'alpha': 0.3})
+    plt.title("Similarity vs Pipeline Transfer Performance")
+    plt.xlabel("Cosine Similarity")
+    plt.ylabel("Cross-Application Performance")
+    plt.show()
 
 
 def compute_linear_regression():

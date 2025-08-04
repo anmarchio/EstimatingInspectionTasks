@@ -45,7 +45,7 @@ def show_similarity_results():
                     print("\\begin{table}[h]")
                     print("\centering")
                     print("\caption{Dataset ID and Descriptions}")
-                    print("\label{tab:complexity}")
+                    print("\label{tab:dataset_description}")
                     print("\\resizebox{0.5\columnwidth}{!}{%")
                     print("\\begin{tabular}{cc}")
                     print("\hline")

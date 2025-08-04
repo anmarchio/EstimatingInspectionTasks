@@ -37,5 +37,57 @@ def show_similarity_results():
     csv_files = [file for file in os.listdir(result_dir) if file.endswith(".csv")]
 
     for file in csv_files:
-        similarity_df = read_df(file)
-        print(similarity_df.to_string())
+        with open(os.path.join(result_dir, file), 'r', encoding='utf-8') as f:
+            idx = 0
+            for line in f:
+                if idx == 0:
+                    cells = line.strip().split(',')
+                    print("\\begin{table}[h]")
+                    print("\centering")
+                    print("\caption{Dataset ID and Descriptions}")
+                    print("\label{tab:complexity}")
+                    print("\\resizebox{0.5\columnwidth}{!}{%")
+                    print("\\begin{tabular}{cc}")
+                    print("\hline")
+                    print("ID & Dataset Name \\\\")
+                    print("\hline")
+                    cdx = 1
+                    header = ""
+                    for c in cells:
+                        c = c.replace('_', '\\_')
+                        print(f"{cdx} & {c} \\\\")
+                        if cdx == 1:
+                            header = f"{cdx} "
+                        else:
+                            header += f"& {cdx} "
+                        cdx += 1
+                    header += " \\\\"
+                    print("\hline")
+                    print("\end{tabular}%")
+                    print("}")
+                    print("\end{table}")
+
+                    print("\\begin{table*}[t]")
+                    print("\centering")
+                    print("\caption{Cosine Similarity between all datasets}")
+                    print("\label{tab:similarity-matrix}")
+                    print("\\resizebox{2.0\columnwidth}{!}{%")
+                    header_format = "c" * len(cells)
+                    print("\\begin{tabular}{" + header_format + "}")
+                    print("\hline")
+                    print(header)
+                    print("\hline")
+                else:
+                    cells = line.strip().split(',')
+                    values = []
+                    for cell in cells:
+                        value = float(cell)
+                        values.append(f"{value:.2f}")
+                    latex_line = " & ".join(values) + " \\\\"
+                    print(latex_line)
+
+                idx += 1
+            print("\hline")
+            print("\end{tabular}%")
+            print("}")
+            print("\end{table}")

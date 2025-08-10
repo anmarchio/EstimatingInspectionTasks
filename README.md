@@ -66,6 +66,11 @@ Goal: Measure pairwise similarity within each dataset cluster.
 
 &nbsp;&nbsp;&nbsp;&nbsp;_cosine(x, y) = (x ⋅ y) / (||x|| ||y||)_
 
+#### Interpretation
+* Empirically in computer vision, cosine similarities above `> 0.7` are typically considered "highly similar" in embedding space.
+* `0.5 – 0.6` is moderate, but could be meaningful if your downstream task (CGP pipeline transfer) is sensitive to partial overlap in features.
+* `< 0.5` usually indicates the datasets differ enough that you wouldn’t expect strong cross-domain generalization.
+
 ### 📏 4. MCC Score Computation
 Goal: Evaluate segmentation performance on selected dataset pairs.
 

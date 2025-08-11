@@ -23,15 +23,17 @@ def plot_similarity_heatmap(file_path):
         print(f"An error occurred: {e}")
 
     if similarity_df is not None:
-        # --- Step 2: Shorten labels to max 4 letters ---
-        short_labels = [name[:4] for name in similarity_df.index]
-        similarity_df.index = short_labels
-        similarity_df.columns = short_labels
+        # --- Replace labels with numbers ---
+        n = len(similarity_df)
+        num_labels = list(range(1, n + 1))
+        similarity_df.index = num_labels
+        similarity_df.columns = num_labels
 
-        # --- Step 3: Plot heatmap without annotations ---
+        # --- Plot heatmap without annotations ---
         sns.heatmap(similarity_df, annot=False, cmap="coolwarm", square=True,
                     cbar_kws={"label": "Cosine Similarity"})
-        plt.title("Cosine Similarity of Datasets")
+        # plt.title("Cosine Similarity of Datasets")
+        plt.tight_layout()
         plt.savefig(file_path.replace('.csv', '_heatmap.png'))
         plt.show()
     else:

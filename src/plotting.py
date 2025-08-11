@@ -15,7 +15,7 @@ def plot_similarity_heatmap(file_path):
     similarity_df = None
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
-            similarity_df = pd.read_csv(f, index_col=0)
+            similarity_df = pd.read_csv(file_path, index_col=0).dropna(axis=1, how="all")
         print("Similarity matrix loaded successfully.")
     except FileNotFoundError:
         print(f"Error: File not found at {file_path}")
@@ -23,71 +23,77 @@ def plot_similarity_heatmap(file_path):
         print(f"An error occurred: {e}")
 
     if similarity_df is not None:
-        sns.heatmap(similarity_df, annot=True, fmt=".2f", cmap="coolwarm")
-        plt.title("Similarity Heatmap")
+        # --- Step 2: Shorten labels to max 4 letters ---
+        short_labels = [name[:4] for name in similarity_df.index]
+        similarity_df.index = short_labels
+        similarity_df.columns = short_labels
+
+        # --- Step 3: Plot heatmap without annotations ---
+        sns.heatmap(similarity_df, annot=False, cmap="coolwarm", square=True,
+                    cbar_kws={"label": "Cosine Similarity"})
+        plt.title("Cosine Similarity of Datasets")
         plt.savefig(file_path.replace('.csv', '_heatmap.png'))
         plt.show()
     else:
         raise ValueError("No similarity data to plot.")
 
 
-def show_similarity_results():
-    result_dir = os.path.join(RESULTS_PATH)
-
-    csv_files = [file for file in os.listdir(result_dir) if file.endswith(".csv")]
-
-    for file in csv_files:
-        with open(os.path.join(result_dir, file), 'r', encoding='utf-8') as f:
-            idx = 0
-            for line in f:
-                if idx == 0:
-                    cells = line.strip().split(',')
-                    print("\\begin{table}[h]")
-                    print("\centering")
-                    print("\caption{Dataset ID and Descriptions}")
-                    print("\label{tab:dataset_description}")
-                    print("\\resizebox{0.5\columnwidth}{!}{%")
-                    print("\\begin{tabular}{cc}")
-                    print("\hline")
-                    print("ID & Dataset Name \\\\")
-                    print("\hline")
-                    cdx = 1
-                    header = ""
-                    for c in cells:
+def show_similarity_results(file_path):
+    with open(file_path, 'r', encoding='utf-8') as f:
+        idx = 0
+        for line in f:
+            if idx == 0:
+                cells = line.strip().split(',')
+                print("\\begin{table}[h]")
+                print("\centering")
+                print("\caption{Dataset ID and Descriptions}")
+                print("\label{tab:dataset_description}")
+                print("\\resizebox{0.5\columnwidth}{!}{%")
+                print("\\begin{tabular}{cc}")
+                print("\hline")
+                print("ID & Dataset Name \\\\")
+                print("\hline")
+                cdx = 1
+                header = ""
+                for c in cells:
+                    if c != '':
                         c = c.replace('_', '\\_')
                         print(f"{cdx} & {c} \\\\")
                         if cdx == 1:
                             header = f"{cdx} "
                         else:
                             header += f"& {cdx} "
-                        cdx += 1
-                    header += " \\\\"
-                    print("\hline")
-                    print("\end{tabular}%")
-                    print("}")
-                    print("\end{table}")
+                    cdx += 1
+                header += " \\\\"
+                print("\hline")
+                print("\end{tabular}%")
+                print("}")
+                print("\end{table}")
 
-                    print("\\begin{table*}[t]")
-                    print("\centering")
-                    print("\caption{Cosine Similarity between all datasets}")
-                    print("\label{tab:similarity-matrix}")
-                    print("\\resizebox{2.0\columnwidth}{!}{%")
-                    header_format = "c" * len(cells)
-                    print("\\begin{tabular}{" + header_format + "}")
-                    print("\hline")
-                    print(header)
-                    print("\hline")
-                else:
-                    cells = line.strip().split(',')
-                    values = []
-                    for cell in cells:
+                print("\\begin{table*}[t]")
+                print("\centering")
+                print("\caption{Cosine Similarity between all datasets}")
+                print("\label{tab:similarity-matrix}")
+                print("\\resizebox{2.0\columnwidth}{!}{%")
+                header_format = "c" * len(cells)
+                print("\\begin{tabular}{" + header_format + "}")
+                print("\hline")
+                print(header)
+                print("\hline")
+            else:
+                cells = line.strip().split(',')
+                values = []
+                for cell in cells:
+                    try:
                         value = float(cell)
                         values.append(f"{value:.2f}")
-                    latex_line = " & ".join(values) + " \\\\"
-                    print(latex_line)
+                    except:
+                        continue
+                latex_line = " & ".join(values) + " \\\\"
+                print(latex_line)
 
-                idx += 1
-            print("\hline")
-            print("\end{tabular}%")
-            print("}")
-            print("\end{table}")
+            idx += 1
+        print("\hline")
+        print("\end{tabular}%")
+        print("}")
+        print("\end{table}")

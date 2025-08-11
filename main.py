@@ -47,7 +47,13 @@ def main():
 
         if selection == 2:
             print("[2] Showing similarity results ...")
-            show_similarity_results()
+            result_dir = os.path.join(RESULTS_PATH)
+
+            csv_files = [file for file in os.listdir(result_dir) if file.endswith(".csv")]
+
+            for file in csv_files:
+                show_similarity_results(os.path.join(result_dir, file))
+                plot_similarity_heatmap(os.path.join(result_dir, file))
 
         if selection == 3:
             # ------------------------------------------------

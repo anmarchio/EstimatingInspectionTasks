@@ -3,6 +3,7 @@ import os
 
 import cv2
 import numpy as np
+import requests
 import scipy.stats as stats
 from skimage.feature import graycomatrix, graycoprops
 from sklearn.metrics.pairwise import cosine_similarity
@@ -41,7 +42,12 @@ def extract_image_statistics(image):
 
 def compute_correlation_analysis(similarity_filepath, cross_results_dir):
     # --- Step 1: Load similarity matrix
-    similarity_df = pd.read_csv(similarity_filepath, index_col=0)
+    similarity_df = None
+    with open(similarity_filepath, 'r', encoding='utf-8') as f:
+        similarity_df = pd.read_csv(similarity_filepath, index_col=0).dropna(axis=1, how="all")
+
+    if similarity_df is None:
+        raise ValueError("No similarity data found!")
 
     # Normalize column and index names for matching
     similarity_df.columns = similarity_df.columns.astype(str).str.strip()
@@ -55,14 +61,22 @@ def compute_correlation_analysis(similarity_filepath, cross_results_dir):
         return s.replace("_mean_pipeline", "").replace(".txt", "").strip()
 
     # --- Step 3: Load each result file and collect scores
-    for fname in os.listdir(cross_results_dir):
-        if not fname.endswith("_mean_pipeline.txt"):
+    response = requests.get(cross_results_dir)
+    cross_results_files = [item for item in response.json() if item["type"] == "file"]
+
+    for file in cross_results_files:
+        #src_dataset = normalize_name(fname)
+        #path = os.path.join(cross_results_dir, fname)
+
+        raw_url = file["download_url"]  # direct raw file link
+        src_dataset = file["name"]
+
+        if not src_dataset.endswith("_mean_pipeline.txt"):
             continue
 
-        src_dataset = normalize_name(fname)
-        path = os.path.join(cross_results_dir, fname)
+        # Download file content directly into pandas
+        df = pd.read_csv(raw_url, sep=';', engine='python')
 
-        df = pd.read_csv(path, sep=";")
         for _, row in df.iterrows():
             tgt_dataset = normalize_name(row[2])
             try:

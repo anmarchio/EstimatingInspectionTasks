@@ -33,6 +33,7 @@ def plot_similarity_heatmap(file_path):
         sns.heatmap(similarity_df, annot=False, cmap="coolwarm", square=True,
                     cbar_kws={"label": "Cosine Similarity"})
         # plt.title("Cosine Similarity of Datasets")
+        plt.xticks(rotation=0)
         plt.tight_layout()
         plt.savefig(file_path.replace('.csv', '_heatmap.png'))
         plt.show()

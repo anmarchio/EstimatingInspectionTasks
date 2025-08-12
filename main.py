@@ -1,6 +1,8 @@
 import os
 
-from env_vars import MANUAL_HDEV_DIR, RESULTS_PATH
+import requests
+
+from env_vars import RESULTS_PATH, GITHUB_CROSS_APPLICATION_RESULTS
 from experiment_params_data import DATASETS
 from src.models.resnet_embedding import compute_similarity_matrix
 from src.plotting import plot_similarity_heatmap, show_similarity_results
@@ -60,7 +62,7 @@ def main():
             # Correlation Analysis:
             # Compute Spearman correlation (rank-based, non-parametric, robust to non-linear relationships)
             # ------------------------------------------------
-            compute_correlation_analysis(os.path.join(RESULTS_PATH, "results-20250803.csv"), MANUAL_HDEV_DIR)
+            compute_correlation_analysis(os.path.join(RESULTS_PATH, "results-20250803.csv"), GITHUB_CROSS_APPLICATION_RESULTS)
 
         if selection == 4:
             # ------------------------------------------------

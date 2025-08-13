@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import mannwhitneyu
 
 import statsmodels.api as sm
-from env_vars import RESULTS_PATH
+from env_vars import RESULTS_PATH, LONG_TO_SHORT_NAME
 from src.data_handling import read_df
 
 
@@ -44,7 +44,8 @@ def compute_correlation_analysis(similarity_filepath, cross_results_dir):
     # --- Step 1: Load similarity matrix
     similarity_df = None
     with open(similarity_filepath, 'r', encoding='utf-8') as f:
-        similarity_df = pd.read_csv(similarity_filepath, index_col=0).dropna(axis=1, how="all")
+        similarity_df = pd.read_csv(similarity_filepath, index_col=0,
+                                    usecols=lambda col: col != similarity_filepath.split('/')[-1])
 
     if similarity_df is None:
         raise ValueError("No similarity data found!")
@@ -79,8 +80,9 @@ def compute_correlation_analysis(similarity_filepath, cross_results_dir):
 
         for _, row in df.iterrows():
             tgt_dataset = normalize_name(row[2])
+            src_dataset = normalize_name(src_dataset)
             try:
-                similarity = similarity_df.loc[src_dataset, tgt_dataset]
+                similarity = similarity_df.loc[LONG_TO_SHORT_NAME[src_dataset], LONG_TO_SHORT_NAME[tgt_dataset]]
             except KeyError:
                 continue  # Skip pairs not found in similarity matrix
 
@@ -88,7 +90,7 @@ def compute_correlation_analysis(similarity_filepath, cross_results_dir):
                 "source": src_dataset,
                 "target": tgt_dataset,
                 "similarity": similarity,
-                "cross_score": float(row['CrossScore'])
+                "cross_score": float(row[3])
             })
 
     # --- Step 4: Create dataframe for analysis
@@ -102,7 +104,7 @@ def compute_correlation_analysis(similarity_filepath, cross_results_dir):
     print("✅ Spearman correlation:", spearman_corr, " (p =", spearman_p, ")")
 
     # ------------ VISUALIZATION ----------
-    sns.regplot(x='similarity', y='performance', data=similarity_df, scatter_kws={'alpha': 0.3})
+    sns.regplot(x='similarity', y='cross_score', data=correlation_df, scatter_kws={'alpha': 0.3})
     plt.title("Similarity vs Pipeline Transfer Performance")
     plt.xlabel("Cosine Similarity")
     plt.ylabel("Cross-Application Performance")

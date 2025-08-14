@@ -69,14 +69,14 @@ def main():
             # Linear Regression:
             # Fit a simple regression model to quantify how much similarity influences performance
             # ------------------------------------------------
-            compute_linear_regression()
+            compute_linear_regression(os.path.join(RESULTS_PATH, "results-20250803.csv"), GITHUB_CROSS_APPLICATION_RESULTS)
 
         if selection == 5:
             # -------------------------------------------------
             # Mann-Whitney U:
             # Does high-similarity lead to significantly better performance
             # -------------------------------------------------
-            compute_mann_whitney_u()
+            compute_mann_whitney_u(os.path.join(RESULTS_PATH, "results-20250803.csv"), GITHUB_CROSS_APPLICATION_RESULTS)
 
         if selection > 4:
             print("Invalid selection. Please choose a valid option.")

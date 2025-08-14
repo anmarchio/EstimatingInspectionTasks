@@ -164,7 +164,11 @@ def compute_mann_whitney_u(similarity_filepath, cross_results_dir):
     high_similarity = correlation_df[correlation_df["similarity"] >= 0.7]
 
     high = high_similarity["cross_score"]
+    medium = medium_similarity["cross_score"]
     low = low_similarity["cross_score"]
 
-    stat, p = mannwhitneyu(high, low, alternative='greater')  # one-sided
-    print(f"Mann-Whitney U-test p-value (High vs Low similarity): {p:.5f}")
+    med_low_stat, med_low_p = mannwhitneyu(medium, low, alternative='greater')  # one-sided
+    print(f"Mann-Whitney U-test p-value (Medium vs Low similarity): {med_low_p:.5f}")
+    high_low_stat, high_low_p = mannwhitneyu(high, low, alternative='greater')  # one-sided
+    print(f"Mann-Whitney U-test p-value (High vs Low similarity): {high_low_p:.5f}")
+    print("Done.")

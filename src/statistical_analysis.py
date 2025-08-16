@@ -134,6 +134,20 @@ def compute_correlation_analysis(similarity_filepath, cross_results_dir):
     print("✅ High Similarity - Pearson correlation:", high_pearson_corr, " (p =", high_pearson_p, ")")
     print("✅ High Similarity - Spearman correlation:", high_spearman_corr, " (p =", high_spearman_p, ")")
 
+    # ------------ Analyze Bins of different sizes ----------
+    bin_sizes = [0.2, 0.1]
+    for bin_size in bin_sizes:
+        print(f"\n--- Analysis for Bin Size: {bin_size} ---")
+        bins = np.arange(0, 1.1, bin_size)
+        correlation_df['bin'] = pd.cut(correlation_df['similarity'], bins, include_lowest=True)
+
+        for bin_range, group in correlation_df.groupby('bin'):
+            if len(group) > 1:  # Ensure there are enough data points
+                bin_pearson_corr, bin_pearson_p = pearsonr(group["similarity"], group["cross_score"])
+                bin_spearman_corr, bin_spearman_p = spearmanr(group["similarity"], group["cross_score"])
+                print(f"Bin {bin_range}: Pearson correlation = {bin_pearson_corr:.3f} (p = {bin_pearson_p:.5f}), "
+                      f"Spearman correlation = {bin_spearman_corr:.3f} (p = {bin_spearman_p:.5f})")
+
     # ------------ VISUALIZATION ----------
     sns.regplot(x='similarity', y='cross_score', data=correlation_df, scatter_kws={'alpha': 0.3})
     plt.title("Similarity vs Pipeline Transfer Performance")

@@ -3,7 +3,7 @@ DATASETS for Experiments
 """
 # from src.models.unet_test_model import UnetTestModel
 
-aircarbon3_datasets = {
+aircarbon3_dark_n_datasets = {
     '80.jpg_dark_1': {
         'train': 'Aircarbon3\\20210325_13h25_rov\\training\\80.jpg_dark_1',
         'test': 'Aircarbon3\\20210325_13h25_rov\\training\\80.jpg_dark_2',
@@ -42,6 +42,16 @@ aircarbon3_datasets_v2 = {
         'test': 'Aircarbon3\\20210325_13h25_rov\\training\\81.jpg',
         'publisher': 'Fraunhofer'
     }  # 'Aircarbon3\\20210325_13h25_rov\\training\\81.jpg_dark'
+}
+
+aircarbon3_light_dark_datasets = aircarbon3_datasets_v2
+
+aircarbon2_t8_dataset = {
+    't_8': {
+        'train': 'Aircarbon2\\Blende5_6_1800mA_rov\\training\\t_8.jpg',
+        'test': 'Aircarbon2\\Blende5_6_1800mA_rov\\training\\t_12.jpg',
+        'publisher': 'Fraunhofer'
+    }
 }
 
 aircarbon2_datasets = {
@@ -83,6 +93,27 @@ severstal_128 = {
     }
 }
 
+kolektor_datasets = {
+    'kos10': {
+        'train': 'KolektorSDD\\kos10',
+        'test': 'KolektorSDD\\kos25',
+        'publisher': 'Kolektor'
+    },  # 'KolektorSDD\\kos10',
+    'kos25': {
+        'train': 'KolektorSDD\\kos25',
+        'test': 'KolektorSDD\\kos10',
+        'publisher': 'Kolektor'
+    }  # 'KolektorSDD\\kos25'
+}
+
+mt_blowhole_dataset = {
+    'MT_Blowhole_train': {
+        'train': 'Magnetic-Tile-Defect\\MT_Blowhole_train',
+        'test': 'Magnetic-Tile-Defect\\MT_Blowhole_val',
+        'publisher': 'MT'
+    }  # 'Magnetic-Tile-Defect\MT_Blowhole_train',
+}
+
 metal_datasets = {
     'MT_Blowhole_train': {
         'train': 'Magnetic-Tile-Defect\\MT_Blowhole_train',
@@ -107,16 +138,16 @@ pultrusion_datasets = {
         'test': 'Pultrusion\\resin_cgp\\val',
         'publisher': 'Fraunhofer'
     },  # 'Pultrusion\\resin_cgp\\train',
-    'window_cgp': {
-        'train': 'Pultrusion\\window_cgp\\train',
-        'test': 'Pultrusion\\window_cgp\\val',
-        'publisher': 'Fraunhofer'
-    },  # 'Pultrusion\\window_cgp\\train',
     'resin_cgp_augmented': {
         'train': 'Pultrusion\\resin_cgp_augmntd\\train',
         'test': 'Pultrusion\\resin_cgp_augmntd\\val',
         'publisher': 'Fraunhofer'
     },  # 'Pultrusion\\resin_cgp_augmntd\\train'
+    'window_cgp': {
+        'train': 'Pultrusion\\window_cgp\\train',
+        'test': 'Pultrusion\\window_cgp\\val',
+        'publisher': 'Fraunhofer'
+    }  # 'Pultrusion\\window_cgp\\train',
 }
 
 textile_datasets = {
@@ -127,57 +158,7 @@ textile_datasets = {
     },  # 'FabricDefectsAITEX\\train'
 }
 
-mvtec_datasets = {
-    'carpet': {
-        'train': 'MVTecAnomalyDetection\\carpet_train',
-        'test': 'MVTecAnomalyDetection\\carpet_val',
-        'publisher': 'MVTec AD'
-    },  # 'MVTecAnomalyDetection\\carpet_train',
-    'leather': {
-        'train': 'MVTecAnomalyDetection\\leather_train',
-        'test': 'MVTecAnomalyDetection\\leather_val',
-        'publisher': 'MVTec AD'
-    },  # 'MVTecAnomalyDetection\\leather_train',
-    'capsule': {
-        'train': 'MVTecAnomalyDetection\\capsule_crack_train',
-        'test': 'MVTecAnomalyDetection\\capsule_crack_val',
-        'publisher': 'MVTec AD'
-    },  # 'MVTecAnomalyDetection\\capsule_crack_train',
-    'metal_nut': {
-        'train': 'MVTecAnomalyDetection\\metal_nut_color_train',
-        'test': 'MVTecAnomalyDetection\\metal_nut_color_val',
-        'publisher': 'MVTec AD'
-    },  # 'MVTecAnomalyDetection\\capsule_crack_train',
-    'pill': {
-        'train': 'MVTecAnomalyDetection\\pill_crack_train',
-        'test': 'MVTecAnomalyDetection\\pill_crack_val',
-        'publisher': 'MVTec AD'
-    },  # 'MVTecAnomalyDetection\\pill_crack_train',
-    'grid_thread': {
-        'train': 'MVTecAnomalyDetection\\grid_thread_train',
-        'test': 'MVTecAnomalyDetection\\grid_thread_val',
-        'publisher': 'MVTec AD'
-    },  # 'MVTecAnomalyDetection\\grid_thread_train',
-    'toothbrush_small': {
-        'train': 'MVTecAnomalyDetection\\toothbrush_small_train',
-        'test': 'MVTecAnomalyDetection\\toothbrush_small_val',
-        'publisher': 'MVTec AD'
-    },  # 'MVTecAnomalyDetection\\toothbrush_small_train',
-    'tile_crack': {
-        'train': 'MVTecAnomalyDetection\\tile_crack_train',
-        'test': 'MVTecAnomalyDetection\\tile_crack_val',
-        'publisher': 'MVTec AD'
-    },  # 'MVTecAnomalyDetection\\tile_crack_train',
-    'wood_scratch': {
-        'train': 'MVTecAnomalyDetection\\wood_scratch_train',
-        'test': 'MVTecAnomalyDetection\\wood_scratch_val',
-        'publisher': 'MVTec AD'
-    },  # 'MVTecAnomalyDetection\\wood_scratch_train',
-    'zipper': {
-        'train': 'MVTecAnomalyDetection\\zipper_rough_train',
-        'test': 'MVTecAnomalyDetection\\zipper_rough_val',
-        'publisher': 'MVTec AD'
-    },  # 'MVTecAnomalyDetection\\zipper_rough_train',
+mvtec_datasets_without_transistor = {
     'bottle_large': {
         'train': 'MVTecAnomalyDetection\\bottle_broken_large_train',
         'test': 'MVTecAnomalyDetection\\bottle_broken_large_val',
@@ -188,26 +169,88 @@ mvtec_datasets = {
         'test': 'MVTecAnomalyDetection\\bottle_broken_small_val',
         'publisher': 'MVTec AD'
     },  # 'MVTecAnomalyDetection\\bottle_broken_small_train',
+    'capsule': {
+        'train': 'MVTecAnomalyDetection\\capsule_crack_train',
+        'test': 'MVTecAnomalyDetection\\capsule_crack_val',
+        'publisher': 'MVTec AD'
+    },  # 'MVTecAnomalyDetection\\capsule_crack_train',
+    'carpet': {
+        'train': 'MVTecAnomalyDetection\\carpet_train',
+        'test': 'MVTecAnomalyDetection\\carpet_val',
+        'publisher': 'MVTec AD'
+    },  # 'MVTecAnomalyDetection\\carpet_train',
     'cable_missing_train': {
         'train': 'MVTecAnomalyDetection\\cable_missing_train',
         'test': 'MVTecAnomalyDetection\\cable_missing_val',
         'publisher': 'MVTec AD'
     },  # 'MVTecAnomalyDetection\\cable_missing_train',
+    'grid_thread': {
+        'train': 'MVTecAnomalyDetection\\grid_thread_train',
+        'test': 'MVTecAnomalyDetection\\grid_thread_val',
+        'publisher': 'MVTec AD'
+    },  # 'MVTecAnomalyDetection\\grid_thread_train',
     'hazelnut_crack_train': {
         'train': 'MVTecAnomalyDetection\\hazelnut_crack_train',
         'test': 'MVTecAnomalyDetection\\hazelnut_crack_val',
         'publisher': 'MVTec AD'
     },  # 'MVTecAnomalyDetection\\hazelnut_crack_train',
+    'metal_nut': {
+        'train': 'MVTecAnomalyDetection\\metal_nut_color_train',
+        'test': 'MVTecAnomalyDetection\\metal_nut_color_val',
+        'publisher': 'MVTec AD'
+    },  # 'MVTecAnomalyDetection\\capsule_crack_train',
+    'pill': {
+        'train': 'MVTecAnomalyDetection\\pill_crack_train',
+        'test': 'MVTecAnomalyDetection\\pill_crack_val',
+        'publisher': 'MVTec AD'
+    },  # 'MVTecAnomalyDetection\\pill_crack_train',
     'screw_scratch_neck_train': {
         'train': 'MVTecAnomalyDetection\\screw_scratch_neck_train',
         'test': 'MVTecAnomalyDetection\\screw_scratch_neck_val',
         'publisher': 'MVTec AD'
     },  # 'MVTecAnomalyDetection\\screw_scratch_neck_train',
+    'tile_crack': {
+        'train': 'MVTecAnomalyDetection\\tile_crack_train',
+        'test': 'MVTecAnomalyDetection\\tile_crack_val',
+        'publisher': 'MVTec AD'
+    },  # 'MVTecAnomalyDetection\\tile_crack_train',
+    'toothbrush_small': {
+        'train': 'MVTecAnomalyDetection\\toothbrush_small_train',
+        'test': 'MVTecAnomalyDetection\\toothbrush_small_val',
+        'publisher': 'MVTec AD'
+    },  # 'MVTecAnomalyDetection\\toothbrush_small_train',
+    'wood_scratch': {
+        'train': 'MVTecAnomalyDetection\\wood_scratch_train',
+        'test': 'MVTecAnomalyDetection\\wood_scratch_val',
+        'publisher': 'MVTec AD'
+    },  # 'MVTecAnomalyDetection\\wood_scratch_train',
+    'zipper': {
+        'train': 'MVTecAnomalyDetection\\zipper_rough_train',
+        'test': 'MVTecAnomalyDetection\\zipper_rough_val',
+        'publisher': 'MVTec AD'
+    },  # 'MVTecAnomalyDetection\\zipper_rough_train',
+    'leather': {
+        'train': 'MVTecAnomalyDetection\\leather_train',
+        'test': 'MVTecAnomalyDetection\\leather_val',
+        'publisher': 'MVTec AD'
+    },  # 'MVTecAnomalyDetection\\leather_train',
+}
+
+mvtec_datasets_full = {
+    **mvtec_datasets_without_transistor,
     'transistor_damaged_case_train': {
         'train': 'MVTecAnomalyDetection\\transistor_damaged_case_train',
         'test': 'MVTecAnomalyDetection\\transistor_damaged_case_val',
         'publisher': 'MVTec AD'
     },  # 'MVTecAnomalyDetection\\transistor_damaged_case_train'
+}
+
+mvtec_transistor = {
+    'transistor_damaged_case_train': {
+        'train': 'MVTecAnomalyDetection\\transistor_damaged_case_train',
+        'test': 'MVTecAnomalyDetection\\transistor_damaged_case_val',
+        'publisher': 'MVTec AD'
+    }  # 'MVTecAnomalyDetection\\transistor_damaged_case_train'
 }
 
 mvtec_toothbrush = {
@@ -286,6 +329,21 @@ maipreform_datasets = {
 
 # reduced maipreform with only 5 images per dataset
 maipreform_datasets_reduced = {
+    'spule-upside-0315': {
+        'train': 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone\\training_small_subset',
+        'test': 'MAIPreform2.0\\20170502_Compositence\\Spule1_01117_Upside\\undone\\training_small_subset',
+        'publisher': 'Fraunhofer'
+    },  # 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone\\training',
+    'spule-upside-hole-reduced': {
+        'train': 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone_thread_hole\\training_small_subset',
+        'test': 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone_thread_hole_256\\training_small_subset',
+        'publisher': 'Fraunhofer'
+    },  # 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone_thread_hole\\training',
+    'spule-upside-hole256-reduced': {
+        'train': 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone_thread_hole_256\\training_small_subset',
+        'test': 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone_thread_hole_256\\training_small_subset',
+        'publisher': 'Fraunhofer'
+    },  # 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone_thread_hole_256\\training'
     'spule-upside-0117-reduced': {
         'train': 'MAIPreform2.0\\20170502_Compositence\\Spule1_01117_Upside\\undone\\training_small_subset',
         'test': 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone\\training_small_subset',
@@ -301,6 +359,22 @@ maipreform_datasets_reduced = {
         'test': 'MAIPreform2.0\\20170502_Compositence\\Spule2-0816_Upside\\undone\\durchlauf1\\training_small_subset',
         'publisher': 'Fraunhofer'
     },  # 'MAIPreform2.0\\20170502_Compositence\\Spule2-0816_Upside\\undone\\durchlauf1\\training',
+}
+
+spule_upside_0315 = {
+    'spule-upside-0315': {
+        'train': 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone\\training',
+        'test': 'MAIPreform2.0\\20170502_Compositence\\Spule1_01117_Upside\\undone\\training',
+        'publisher': 'Fraunhofer'
+    }  # 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone\\training',
+}
+
+spule_upside_0315_reduced = {
+    'spule-upside-0315': {
+        'train': 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone\\training_small_subset',
+        'test': 'MAIPreform2.0\\20170502_Compositence\\Spule1_01117_Upside\\undone\\training_small_subset',
+        'publisher': 'Fraunhofer'
+    },  # 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone\\training',
     'spule-upside-hole-reduced': {
         'train': 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone_thread_hole\\training_small_subset',
         'test': 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone_thread_hole_256\\training_small_subset',
@@ -311,19 +385,24 @@ maipreform_datasets_reduced = {
         'test': 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone_thread_hole_256\\training_small_subset',
         'publisher': 'Fraunhofer'
     },  # 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone_thread_hole_256\\training'
-    'spule-upside-0315': {
-        'train': 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone\\training_small_subset',
-        'test': 'MAIPreform2.0\\20170502_Compositence\\Spule1_01117_Upside\\undone\\training_small_subset',
-        'publisher': 'Fraunhofer'
-    }  # 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone\\training',
 }
 
-spule_upside_0315 = {
-    'spule-upside-0315': {
-        'train': 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone\\training',
-        'test': 'MAIPreform2.0\\20170502_Compositence\\Spule1_01117_Upside\\undone\\training',
+spule_upside_117_reduced = {
+    'spule-upside-0117-reduced': {
+        'train': 'MAIPreform2.0\\20170502_Compositence\\Spule1_01117_Upside\\undone\\training_small_subset',
+        'test': 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone\\training_small_subset',
         'publisher': 'Fraunhofer'
-    }  # 'MAIPreform2.0\\20170502_Compositence\\Spule0-0315_Upside\\undone\\training',
+    },  # 'MAIPreform2.0\\20170502_Compositence\\Spule1_0117_Upside\\undone\\training',
+    'spule2-0816_Upside-dl1-reduced': {
+        'train': 'MAIPreform2.0\\20170502_Compositence\\Spule2-0816_Upside\\undone\\durchlauf1\\training_small_subset',
+        'test': 'MAIPreform2.0\\20170502_Compositence\\Spule2-0816_Upside\\undone\\durchlauf2\\training_small_subset',
+        'publisher': 'Fraunhofer'
+    },  # 'MAIPreform2.0\\20170502_Compositence\\Spule2-0816_Upside\\undone\\durchlauf2\\training',
+    'spule2-0816_Upside-dl2-reduced': {
+        'train': 'MAIPreform2.0\\20170502_Compositence\\Spule2-0816_Upside\\undone\\durchlauf2\\training_small_subset',
+        'test': 'MAIPreform2.0\\20170502_Compositence\\Spule2-0816_Upside\\undone\\durchlauf1\\training_small_subset',
+        'publisher': 'Fraunhofer'
+    },  # 'MAIPreform2.0\\20170502_Compositence\\Spule2-0816_Upside\\undone\\durchlauf1\\training',
 }
 # for use
 cracks_datasets = {
@@ -351,25 +430,33 @@ cracks_datasets_reduced = {
 }
 
 DATASETS = {
+    **aircarbon2_t8_dataset,
+    #**aircarbon2_datasets,
+    #**aircarbon3_datasets_v2,
+    **aircarbon3_dark_n_datasets,
+    **aircarbon3_light_dark_datasets, # Sm_Dark / Sm_Light
+    **textile_datasets, # FabricDefectsAITEX
+    **kolektor_datasets, # kos10, kos25
+    **metal_datasets, # MT_Blowhole_train, kos10, kos25
+    # **spule_upside_0315,
+    #**maipreform_datasets,
+    **spule_upside_0315_reduced,
     # **mvtec_tile_dataset_128, # resized to fit 128x128 size for augmented u-net
     # **mvtec_cable_dataset_128, # resized to fit 128x128 size for augmented u-net
     # **severstal_128, # resized to fit 128x128 size for augmented u-net
-    **mvtec_tile_dataset,
-    **mvtec_toothbrush,  # missing toothbrush dataset for later experimentation
-    **cracks_datasets,
+    #**mvtec_tile_dataset,
+    #**mvtec_toothbrush,  # missing toothbrush dataset for later experimentation
     # **cracks_datasets_reduced, # <-- svc(rbf,0.1,1)
-    **mvtec_cable_dataset,
-    **metal_datasets,
-    **textile_datasets,
-    **mvtec_datasets,
-    **aircarbon3_datasets_v2,
-    **aircarbon3_datasets,
-    **aircarbon2_datasets,
+    #**mvtec_cable_dataset,
+    **mvtec_datasets_without_transistor,
+    #**mvtec_datasets_full,
     **pultrusion_datasets,
     **severstal_plain,
-    **spule_upside_0315,
-    **maipreform_datasets
+    **mvtec_transistor,
+    **cracks_datasets, # RoadCracks
+    **mt_blowhole_dataset,
     # **maipreform_datasets_reduced # <-- svc(rbf,0.1,1)
+    **spule_upside_117_reduced
 }
 
 """

@@ -60,6 +60,7 @@ def print_similarity_matrix(file_path):
     for i, name in enumerate(dataset_names):
         row = f"{name[:5]} " + "  ".join([f"{similarity_matrix[i, j]:.2f}" for j in range(len(dataset_names))])
         print(row)
+    print("File: " + file_path)
 
 
 def compute_similarity_matrix(dataset_names, dataset_paths):

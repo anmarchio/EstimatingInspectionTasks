@@ -11,34 +11,42 @@ from src.data_handling import print_table, read_df
 
 
 def plot_similarity_heatmap(file_path):
-    """Reads the similarity matrix from a CSV file."""
-    similarity_df = None
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            similarity_df = pd.read_csv(file_path, index_col=0).dropna(axis=1, how="all")
-        print("Similarity matrix loaded successfully.")
-    except FileNotFoundError:
-        print(f"Error: File not found at {file_path}")
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    df = pd.read_csv(file_path, index_col=0)
 
-    if similarity_df is not None:
-        # --- Replace labels with numbers ---
-        n = len(similarity_df)
-        num_labels = list(range(1, n + 1))
-        similarity_df.index = num_labels
-        similarity_df.columns = num_labels
+    # Drop empty rows/cols
+    df = df.dropna(axis=0, how="all").dropna(axis=1, how="all")
 
-        # --- Plot heatmap without annotations ---
-        sns.heatmap(similarity_df, annot=False, cmap="coolwarm", square=True,
-                    cbar_kws={"label": "Cosine Similarity"})
-        # plt.title("Cosine Similarity of Datasets")
-        plt.xticks(rotation=0)
-        plt.tight_layout()
-        plt.savefig(file_path.replace('.csv', '_heatmap.png'))
-        plt.show()
-    else:
-        raise ValueError("No similarity data to plot.")
+    # Normalize labels so they can match
+    df.index = df.index.astype(str).str.strip()
+    df.columns = pd.Index(df.columns).astype(str).str.strip()
+
+    # Debug: how many overlap?
+    common = df.index.intersection(df.columns)
+    print("shape after drop:", df.shape)
+    print("common count:", len(common))
+
+    if len(common) == 0:
+        # show a few unmatched examples
+        print("first 10 rows:", df.index[:10].tolist())
+        print("first 10 cols:", list(df.columns[:10]))
+        raise ValueError("No overlapping labels between index and columns. "
+                         "Your CSV row names and column names don't match.")
+
+    df = df.loc[common, common]
+    print("shape after align:", df.shape)
+
+    # Relabel 1..n
+    n = df.shape[0]
+    labels = list(range(1, n + 1))
+    df.index = labels
+    df.columns = labels
+
+    sns.heatmap(df, annot=False, cmap="coolwarm", square=True,
+                cbar_kws={"label": "Cosine Similarity"})
+    plt.xticks(rotation=0)
+    plt.tight_layout()
+    plt.savefig(file_path.replace(".csv", "_heatmap.png"))
+    plt.show()
 
 
 def show_similarity_results(file_path):

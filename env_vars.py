@@ -11,6 +11,9 @@ RESULTS_PATH = os.path.join(WDIR, "results")
 GITHUB_CROSS_APPLICATION_RESULTS = ("https://api.github.com/repos/anmarchio/experiments/contents/test"
                                     "/cross_application/manual_hdev")
 
+#SIMILARITY_VALUES_FILE = "results-20250803.csv"
+SIMILARITY_VALUES_FILE = "results-20260110.csv"
+
 # General Image Parameters
 
 IMG_SIZE = 128

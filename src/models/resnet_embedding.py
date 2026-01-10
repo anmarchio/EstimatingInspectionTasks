@@ -47,7 +47,12 @@ def load_and_preprocess_images(dataset_path, max_images=50):
 def print_similarity_matrix(file_path):
     """Reads the similarity matrix from a CSV file and prints it."""
     try:
-        df = pd.read_csv(file_path)
+        #df = pd.read_csv(file_path)
+        df = pd.read_csv(file_path, index_col=0)
+
+        # Drop empty rows/cols
+        df = df.dropna(axis=0, how="all").dropna(axis=1, how="all")
+
         similarity_matrix = df.values
         dataset_names = df.columns.tolist()
     except Exception as e:

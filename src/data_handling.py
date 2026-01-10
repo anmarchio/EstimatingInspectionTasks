@@ -32,7 +32,7 @@ def write_df_to_csv(df):
     if not os.path.exists(result_dir):
         os.makedirs(result_dir)
 
-    csv_string = df.to_csv(result_file, index=False)
+    csv_string = df.to_csv(result_file, index=True)
 
     return result_file
 

@@ -2,9 +2,9 @@ import os
 
 import requests
 
-from env_vars import RESULTS_PATH, GITHUB_CROSS_APPLICATION_RESULTS
+from env_vars import RESULTS_PATH, GITHUB_CROSS_APPLICATION_RESULTS, SIMILARITY_VALUES_FILE
 from experiment_params_data import DATASETS
-from src.models.resnet_embedding import compute_similarity_matrix
+from src.models.resnet_embedding import compute_similarity_matrix, print_similarity_matrix
 from src.plotting import plot_similarity_heatmap, show_similarity_results
 from src.statistical_analysis import compute_correlation_analysis, compute_linear_regression, compute_mann_whitney_u
 
@@ -51,32 +51,63 @@ def main():
             print("[2] Showing similarity results ...")
             result_dir = os.path.join(RESULTS_PATH)
 
-            csv_files = [file for file in os.listdir(result_dir) if file.endswith(".csv")]
+            try:
+                csv_files = [file for file in os.listdir(result_dir) if file.endswith(".csv")]
+            except FileNotFoundError:
+                print("No CSV files found in RESULTS_PATH.")
+                continue
 
-            for file in csv_files:
-                show_similarity_results(os.path.join(result_dir, file))
-                plot_similarity_heatmap(os.path.join(result_dir, file))
+            if not csv_files:
+                print("No CSV files found in RESULTS_PATH.")
+                continue
+
+            if len(csv_files) == 1:
+                csv_file = csv_files[0]
+                print(f"Reading similarity results from:\n `{os.path.join(result_dir, csv_file)}`")
+
+                show_similarity_results(os.path.join(result_dir, csv_file))
+                plot_similarity_heatmap(os.path.join(result_dir, csv_file))
+                continue
+
+            print("Found the following CSV files:")
+            for idx, file in enumerate(csv_files):
+                print(f"[{idx}] `{file}`")
+
+            selection_idx = input("Select file index: ")
+            try:
+                selection_idx = int(selection_idx)
+                if selection_idx < 0 or selection_idx >= len(csv_files):
+                    print("Invalid selection.")
+                    continue
+            except ValueError:
+                print("Invalid selection.")
+                continue
+
+            chosen_file = csv_files[selection_idx]
+            chosen_path = os.path.join(result_dir, chosen_file)
+            show_similarity_results(chosen_path)
+            plot_similarity_heatmap(chosen_path)
 
         if selection == 3:
             # ------------------------------------------------
             # Correlation Analysis:
             # Compute Spearman correlation (rank-based, non-parametric, robust to non-linear relationships)
             # ------------------------------------------------
-            compute_correlation_analysis(os.path.join(RESULTS_PATH, "results-20250803.csv"), GITHUB_CROSS_APPLICATION_RESULTS)
+            compute_correlation_analysis(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE), GITHUB_CROSS_APPLICATION_RESULTS)
 
         if selection == 4:
             # ------------------------------------------------
             # Linear Regression:
             # Fit a simple regression model to quantify how much similarity influences performance
             # ------------------------------------------------
-            compute_linear_regression(os.path.join(RESULTS_PATH, "results-20250803.csv"), GITHUB_CROSS_APPLICATION_RESULTS)
+            compute_linear_regression(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE), GITHUB_CROSS_APPLICATION_RESULTS)
 
         if selection == 5:
             # -------------------------------------------------
             # Mann-Whitney U:
             # Does high-similarity lead to significantly better performance
             # -------------------------------------------------
-            compute_mann_whitney_u(os.path.join(RESULTS_PATH, "results-20250803.csv"), GITHUB_CROSS_APPLICATION_RESULTS)
+            compute_mann_whitney_u(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE), GITHUB_CROSS_APPLICATION_RESULTS)
 
         if selection > 4:
             print("Invalid selection. Please choose a valid option.")

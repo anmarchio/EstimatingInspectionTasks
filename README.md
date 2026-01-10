@@ -1,7 +1,7 @@
-# Retrieving Similar Segmentation Problems for Model Training
+# Retrieving Similar Segmentation Problems for Evolutionary Learning
 
 This repository contains the code and scripts for the paper  
-**_"Have I Solved This Before? Retrieving Similar Segmentation Problems for Model Training"_**
+**_"Have I Solved This Before? Retrieving Similar Segmentation Problems for Evolutionary Learning"_**
 
 ---
 

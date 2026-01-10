@@ -146,8 +146,8 @@ Gain insight into structural and visual similarities across datasets.
 If you use this code or ideas from our paper, please cite:
 
 ```bibtex
-@misc{margraf2025have,
- title   = {Have I Solved This Before? Retrieving Similar Segmentation Problems for Model Training},
+@misc{margraf2026have,
+ title   = {Have I Solved This Before? Retrieving Similar Segmentation Problems for Evolutionary Learning},
  author  = {Margraf, Andreas and Cui, Henning and Haehner, Joerg},
  year    = {2025},
  eprint  = {0000.00000},

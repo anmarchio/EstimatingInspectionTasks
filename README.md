@@ -149,7 +149,7 @@ If you use this code or ideas from our paper, please cite:
 @misc{margraf2026have,
  title   = {Have I Solved This Before? Retrieving Similar Segmentation Problems for Evolutionary Learning},
  author  = {Margraf, Andreas and Cui, Henning and Haehner, Joerg},
- year    = {2025},
+ year    = {2026},
  eprint  = {0000.00000},
  archivePrefix  = {arXiv},
  primaryClass  = {cs.CS},

@@ -46,12 +46,17 @@ aircarbon3_datasets_v2 = {
 
 aircarbon3_light_dark_datasets = aircarbon3_datasets_v2
 
-aircarbon2_t8_dataset = {
+aircarbon2_t8_datasets = {
     't_8': {
         'train': 'Aircarbon2\\Blende5_6_1800mA_rov\\training\\t_8.jpg',
         'test': 'Aircarbon2\\Blende5_6_1800mA_rov\\training\\t_12.jpg',
         'publisher': 'Fraunhofer'
-    }
+    },
+    'CF_RefSet': {
+        'train': 'Aircarbon2\\CF_ReferenceSet',
+        'test': 'Aircarbon2\\CF_ReferenceSet_Small_Light',
+        'publisher': 'Fraunhofer'
+    },  # 'Aircarbon2\\CF_ReferenceSet',
 }
 
 aircarbon2_datasets = {
@@ -112,6 +117,14 @@ mt_blowhole_dataset = {
         'test': 'Magnetic-Tile-Defect\\MT_Blowhole_val',
         'publisher': 'MT'
     }  # 'Magnetic-Tile-Defect\MT_Blowhole_train',
+}
+
+kos10 = {
+    'kos10': {
+        'train': 'KolektorSDD\\kos10',
+        'test': 'KolektorSDD\\kos25',
+        'publisher': 'Kolektor'
+    }  # 'KolektorSDD\\kos10',
 }
 
 metal_datasets = {
@@ -430,14 +443,16 @@ cracks_datasets_reduced = {
 }
 
 DATASETS = {
-    **aircarbon2_t8_dataset,
+    **aircarbon2_t8_datasets,
     #**aircarbon2_datasets,
     #**aircarbon3_datasets_v2,
     **aircarbon3_dark_n_datasets,
     **aircarbon3_light_dark_datasets, # Sm_Dark / Sm_Light
     **textile_datasets, # FabricDefectsAITEX
-    **kolektor_datasets, # kos10, kos25
-    **metal_datasets, # MT_Blowhole_train, kos10, kos25
+    #**kolektor_datasets, # kos10, kos25
+    #**metal_datasets, # MT_Blowhole_train, kos10, kos25
+    **kos10,
+    **mt_blowhole_dataset,
     # **spule_upside_0315,
     #**maipreform_datasets,
     **spule_upside_0315_reduced,
@@ -454,7 +469,6 @@ DATASETS = {
     **severstal_plain,
     **mvtec_transistor,
     **cracks_datasets, # RoadCracks
-    **mt_blowhole_dataset,
     # **maipreform_datasets_reduced # <-- svc(rbf,0.1,1)
     **spule_upside_117_reduced
 }

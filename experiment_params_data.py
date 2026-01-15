@@ -84,7 +84,8 @@ aircarbon2_refset_datasets = {
         'publisher': 'Fraunhofer'
     }  # 'Aircarbon2\\CF_ReferenceSet_Small_Dark'
 }
-aircarbon2_datasets = aircarbon2_t8_datasets + aircarbon2_refset_datasets
+
+aircarbon2_datasets = {**aircarbon2_t8_datasets, **aircarbon2_refset_datasets}
 
 severstal_plain = {
     'severstal': {

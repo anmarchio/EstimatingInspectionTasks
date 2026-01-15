@@ -3,6 +3,14 @@ DATASETS for Experiments
 """
 # from src.models.unet_test_model import UnetTestModel
 
+aircarbon3_80_bright = {
+    '80.jpg_bright': {
+        'train': 'Aircarbon3\\20210325_13h25_rov\\training\80.jpg_bright',
+        'test': 'Aircarbon3\\20210325_13h25_rov\\training\80.jpg_bright',
+        'publisher': 'Fraunhofer'
+    },
+}
+
 aircarbon3_dark_n_datasets = {
     '80.jpg_dark_1': {
         'train': 'Aircarbon3\\20210325_13h25_rov\\training\\80.jpg_dark_1',
@@ -44,27 +52,22 @@ aircarbon3_datasets_v2 = {
     }  # 'Aircarbon3\\20210325_13h25_rov\\training\\81.jpg_dark'
 }
 
-aircarbon3_light_dark_datasets = aircarbon3_datasets_v2
+aircarbon3_spule0816 = {
+    'spule2-0816_Upside-dl1': {
+        'train': 'MAIPreform2.0\\20170502_Compositence\\Spule2-0816_Upside\\undone\\durchlauf1\\training',
+        'test': 'MAIPreform2.0\\20170502_Compositence\\Spule2-0816_Upside\\undone\\durchlauf2\\training',
+        'publisher': 'Fraunhofer'
+    },  # 'MAIPreform2.0\\20170502_Compositence\\Spule2-0816_Upside\\undone\\durchlauf2\\training',
+}
 
 aircarbon2_t8_datasets = {
     't_8': {
         'train': 'Aircarbon2\\Blende5_6_1800mA_rov\\training\\t_8.jpg',
         'test': 'Aircarbon2\\Blende5_6_1800mA_rov\\training\\t_12.jpg',
         'publisher': 'Fraunhofer'
-    },
-    'CF_RefSet': {
-        'train': 'Aircarbon2\\CF_ReferenceSet',
-        'test': 'Aircarbon2\\CF_ReferenceSet_Small_Light',
-        'publisher': 'Fraunhofer'
-    },  # 'Aircarbon2\\CF_ReferenceSet',
+    }
 }
-
-aircarbon2_datasets = {
-    't_8': {
-        'train': 'Aircarbon2\\Blende5_6_1800mA_rov\\training\\t_8.jpg',
-        'test': 'Aircarbon2\\Blende5_6_1800mA_rov\\training\\t_12.jpg',
-        'publisher': 'Fraunhofer'
-    },  # 'Aircarbon2\Blende5_6_1800mA_rov\\training\\t_8.jpg',
+aircarbon2_refset_datasets = {
     'CF_RefSet': {
         'train': 'Aircarbon2\\CF_ReferenceSet',
         'test': 'Aircarbon2\\CF_ReferenceSet_Small_Light',
@@ -81,6 +84,7 @@ aircarbon2_datasets = {
         'publisher': 'Fraunhofer'
     }  # 'Aircarbon2\\CF_ReferenceSet_Small_Dark'
 }
+aircarbon2_datasets = aircarbon2_t8_datasets + aircarbon2_refset_datasets
 
 severstal_plain = {
     'severstal': {
@@ -446,8 +450,10 @@ DATASETS = {
     **aircarbon2_t8_datasets,
     #**aircarbon2_datasets,
     #**aircarbon3_datasets_v2,
+    **aircarbon3_80_bright,
     **aircarbon3_dark_n_datasets,
-    **aircarbon3_light_dark_datasets, # Sm_Dark / Sm_Light
+    **aircarbon2_refset_datasets, # RefSet, RefSet_Dark, RefSet_Light
+    **aircarbon3_spule0816,
     **textile_datasets, # FabricDefectsAITEX
     #**kolektor_datasets, # kos10, kos25
     #**metal_datasets, # MT_Blowhole_train, kos10, kos25

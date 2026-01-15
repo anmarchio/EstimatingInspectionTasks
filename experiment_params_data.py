@@ -477,7 +477,7 @@ DATASETS = {
     **mvtec_transistor,
     **cracks_datasets, # RoadCracks
     # **maipreform_datasets_reduced # <-- svc(rbf,0.1,1)
-    **spule_upside_117_reduced
+    #**spule_upside_117_reduced
 }
 
 """

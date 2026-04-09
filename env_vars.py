@@ -2,17 +2,21 @@ import os
 
 # Default File Paths
 
-WDIR = os.path.join("D:\\", "dev", "github", "EstimatingInspectionTasks")
+#WDIR = os.path.join("D:\\", "dev", "github", "EstimatingInspectionTasks")
+WDIR = os.path.join("C:\\", "andreas_lokal", "github", "EstimatingInspectionTasks")
 
 DS_ROOT_PATH = os.path.join("D:\\", "evias_expmts")
 
 RESULTS_PATH = os.path.join(WDIR, "results")
 
-GITHUB_CROSS_APPLICATION_RESULTS = ("https://api.github.com/repos/anmarchio/experiments/contents/test/"
-                                    "cross_application/manual_hdev")
+GITHUB_CROSS_APPLICATION_RESULTS_MEAN = ("https://api.github.com/repos/anmarchio/experiments/contents/test/"
+                                    "cross_application/manual_hdev/mean")
+
+GITHUB_CROSS_APPLICATION_RESULTS_BEST = ("https://api.github.com/repos/anmarchio/experiments/contents/test/"
+                                    "cross_application/manual_hdev/best")
 
 #SIMILARITY_VALUES_FILE = "results-20250803.csv"
-SIMILARITY_VALUES_FILE = "results-20260110.csv"
+SIMILARITY_VALUES_FILE = "results-20260115.csv"
 
 # General Image Parameters
 

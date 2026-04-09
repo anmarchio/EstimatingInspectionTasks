@@ -1,6 +1,7 @@
 import os
 
-from env_vars import RESULTS_PATH, GITHUB_CROSS_APPLICATION_RESULTS, SIMILARITY_VALUES_FILE
+from env_vars import RESULTS_PATH, SIMILARITY_VALUES_FILE, \
+    GITHUB_CROSS_APPLICATION_RESULTS_MEAN, GITHUB_CROSS_APPLICATION_RESULTS_BEST
 from experiment_params_data import DATASETS
 from src.models.resnet_embedding import compute_similarity_matrix
 from src.plotting import plot_similarity_heatmap, show_similarity_results
@@ -95,9 +96,16 @@ def main():
             # ------------------------------------------------
             print("[3] Performing Spearman Correlation Analysis ...")
             print("-> Computing Spearman correlation (rank-based, non-parametric, robust to non-linear relationships).")
-            compute_correlation_analysis(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
-                                         GITHUB_CROSS_APPLICATION_RESULTS)
 
+            print("For MEAN MCC:")
+            print("-" * 50)
+            compute_correlation_analysis(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
+                                         GITHUB_CROSS_APPLICATION_RESULTS_MEAN)
+
+            print("For BEST MCC:")
+            print("-" * 50)
+            compute_correlation_analysis(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
+                                         GITHUB_CROSS_APPLICATION_RESULTS_BEST)
         if selection == 4:
             # ------------------------------------------------
             # Linear Regression:
@@ -105,8 +113,16 @@ def main():
             # ------------------------------------------------
             print("[4] Performing Linear Regression Analysis ...")
             print("-> Fitting a simple regression model to quantify how much similarity affects performance.")
+
+            print("For MEAN MCC:")
+            print("-" * 50)
             compute_linear_regression(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
-                                      GITHUB_CROSS_APPLICATION_RESULTS)
+                                      GITHUB_CROSS_APPLICATION_RESULTS_MEAN)
+
+            print("For BEST MCC:")
+            print("-" * 50)
+            compute_linear_regression(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
+                                      GITHUB_CROSS_APPLICATION_RESULTS_BEST)
 
         if selection == 5:
             # -------------------------------------------------
@@ -115,8 +131,16 @@ def main():
             # -------------------------------------------------
             print("[5] Performing Mann-Whitney U Test ...")
             print("-> Testing if high-similarity datasets lead to significantly better performance.")
+
+            print("For MEAN MCC:")
+            print("-" * 50)
             compute_mann_whitney_u(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
-                                   GITHUB_CROSS_APPLICATION_RESULTS)
+                                   GITHUB_CROSS_APPLICATION_RESULTS_MEAN)
+
+            print("For BEST MCC:")
+            print("-" * 50)
+            compute_mann_whitney_u(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
+                                   GITHUB_CROSS_APPLICATION_RESULTS_BEST)
 
         if selection == 6:
             # -------------------------------------------------
@@ -126,9 +150,16 @@ def main():
             print("[6] Performing Bayesian Linear Regression Analysis ...")
             print("-> Fitting a Bayesian linear regression model to estimate the probability distribution of the effect "
                   "of similarity on performance, providing uncertainty estimates.")
-            bayesian_regression(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
-                                GITHUB_CROSS_APPLICATION_RESULTS)
 
+            print("For MEAN MCC:")
+            print("-" * 50)
+            bayesian_regression(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
+                                GITHUB_CROSS_APPLICATION_RESULTS_MEAN)
+
+            print("For BEST MCC:")
+            print("-" * 50)
+            bayesian_regression(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
+                                GITHUB_CROSS_APPLICATION_RESULTS_BEST)
 
         if selection > 6:
             print("Invalid selection. Please choose a valid option.")

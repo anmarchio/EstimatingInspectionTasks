@@ -36,8 +36,10 @@ def extract_image_statistics(image):
 
 
 def normalize_name(s):
-    # Helper function to normalize dataset names from filenames
-    return s.replace("_mean_pipeline", "").replace(".txt", "").strip()
+    suffixes = ["_mean_pipeline", "_best_pipeline", ".txt"]
+    for suffix in suffixes:
+        s = s.replace(suffix, "")
+    return s.strip()
 
 
 def load_and_prepare_similarity_and_cross_results(similarity_filepath, cross_results_dir):
@@ -76,19 +78,24 @@ def load_and_prepare_similarity_and_cross_results(similarity_filepath, cross_res
         raw_url = file["download_url"]  # direct raw file link
         src_dataset = file["name"]
 
-        if not src_dataset.endswith("_mean_pipeline.txt"):
+        if not src_dataset.endswith("_pipeline.txt"):
             continue
 
         # Download file content directly into pandas
         df = pd.read_csv(raw_url, sep=';', engine='python')
 
         for _, row in df.iterrows():
-            tgt_dataset = normalize_name(row.iloc[2])
-            src_dataset = normalize_name(src_dataset)
+
             try:
-                similarity = similarity_df.loc[LONG_TO_SHORT_NAME[src_dataset], LONG_TO_SHORT_NAME[tgt_dataset]]
-            except KeyError:
-                continue  # Skip pairs not found in similarity matrix
+                tgt_dataset = normalize_name(row.iloc[2])
+                src_dataset = normalize_name(src_dataset)
+                similarity = similarity_df.loc[
+                    LONG_TO_SHORT_NAME[src_dataset],
+                    LONG_TO_SHORT_NAME[tgt_dataset]
+                ]
+            except (KeyError, AttributeError) as e:
+                print(f"Skipping pair due to error: {e}")
+                continue
 
             all_rows.append({
                 "source": src_dataset,

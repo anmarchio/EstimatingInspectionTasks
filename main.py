@@ -1,12 +1,11 @@
 import os
 
-import requests
-
 from env_vars import RESULTS_PATH, GITHUB_CROSS_APPLICATION_RESULTS, SIMILARITY_VALUES_FILE
 from experiment_params_data import DATASETS
-from src.models.resnet_embedding import compute_similarity_matrix, print_similarity_matrix
+from src.models.resnet_embedding import compute_similarity_matrix
 from src.plotting import plot_similarity_heatmap, show_similarity_results
-from src.statistical_analysis import compute_correlation_analysis, compute_linear_regression, compute_mann_whitney_u
+from src.statistical_analysis import compute_correlation_analysis, compute_linear_regression, compute_mann_whitney_u, \
+    bayesian_regression
 
 
 def show_menu():
@@ -18,6 +17,7 @@ def show_menu():
     print("[3] Spearman Correlation")
     print("[4] Linear Regression")
     print("[5] Mann-Whitney-U Test")
+    print("[6] Bayesian Linear Regression")
     print("" + "-" * 50)
     selection = input("Go to: ")
 
@@ -48,7 +48,7 @@ def main():
             plot_similarity_heatmap(result_path)
 
         if selection == 2:
-            print("[2] Showing similarity results ...")
+            print("[2] Show similarity results ...")
             result_dir = os.path.join(RESULTS_PATH)
 
             try:
@@ -93,23 +93,44 @@ def main():
             # Correlation Analysis:
             # Compute Spearman correlation (rank-based, non-parametric, robust to non-linear relationships)
             # ------------------------------------------------
-            compute_correlation_analysis(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE), GITHUB_CROSS_APPLICATION_RESULTS)
+            print("[3] Performing Spearman Correlation Analysis ...")
+            print("-> Computing Spearman correlation (rank-based, non-parametric, robust to non-linear relationships).")
+            compute_correlation_analysis(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
+                                         GITHUB_CROSS_APPLICATION_RESULTS)
 
         if selection == 4:
             # ------------------------------------------------
             # Linear Regression:
-            # Fit a simple regression model to quantify how much similarity influences performance
+            # Fit a simple regression model to quantify how much similarity affects performance
             # ------------------------------------------------
-            compute_linear_regression(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE), GITHUB_CROSS_APPLICATION_RESULTS)
+            print("[4] Performing Linear Regression Analysis ...")
+            print("-> Fitting a simple regression model to quantify how much similarity affects performance.")
+            compute_linear_regression(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
+                                      GITHUB_CROSS_APPLICATION_RESULTS)
 
         if selection == 5:
             # -------------------------------------------------
             # Mann-Whitney U:
-            # Does high-similarity lead to significantly better performance
+            # Testing if high-similarity datasets lead to significantly better performance
             # -------------------------------------------------
-            compute_mann_whitney_u(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE), GITHUB_CROSS_APPLICATION_RESULTS)
+            print("[5] Performing Mann-Whitney U Test ...")
+            print("-> Testing if high-similarity datasets lead to significantly better performance.")
+            compute_mann_whitney_u(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
+                                   GITHUB_CROSS_APPLICATION_RESULTS)
 
-        if selection > 4:
+        if selection == 6:
+            # -------------------------------------------------
+            # Bayesian linear regression analysis:
+            # Fit a Bayesian linear regression model to estimate the probability distribution of the effect of similarity on performance, providing uncertainty estimates.
+            # -------------------------------------------------
+            print("[6] Performing Bayesian Linear Regression Analysis ...")
+            print("-> Fitting a Bayesian linear regression model to estimate the probability distribution of the effect "
+                  "of similarity on performance, providing uncertainty estimates.")
+            bayesian_regression(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
+                                GITHUB_CROSS_APPLICATION_RESULTS)
+
+
+        if selection > 6:
             print("Invalid selection. Please choose a valid option.")
 
     print("Exiting ....")

@@ -2,14 +2,14 @@ import os
 
 # Default File Paths
 
-WDIR = os.path.join("C:\\", "andreas_lokal", "dev", "EstimatingInspectionTasks")
+WDIR = os.path.join("D:\\", "dev", "github", "EstimatingInspectionTasks")
 
 DS_ROOT_PATH = os.path.join("D:\\", "evias_expmts")
 
 RESULTS_PATH = os.path.join(WDIR, "results")
 
-GITHUB_CROSS_APPLICATION_RESULTS = ("https://api.github.com/repos/anmarchio/experiments/contents/test"
-                                    "/cross_application/manual_hdev")
+GITHUB_CROSS_APPLICATION_RESULTS = ("https://api.github.com/repos/anmarchio/experiments/contents/test/"
+                                    "cross_application/manual_hdev")
 
 #SIMILARITY_VALUES_FILE = "results-20250803.csv"
 SIMILARITY_VALUES_FILE = "results-20260110.csv"
@@ -100,10 +100,10 @@ LONG_TO_SHORT_NAME = {
     "Pultrusion_Window": "window_cgp",
     "Pultrusion_Resin_Augmtd_mean": "resin_cgp_augmented",
     "severstal-steel": "severstal",
-    "MAIPreform2_Spule0_0315_Upside_Thread_256": "spule-upside-0315",
     "MAIPreform2_Spule_0117": "spule-upside-0117",
     "MAIPreform2_Spule0_0816_Upside": "spule2-0816_Upside-dl1",
     "MAIPreform2_Spule2-0816": "spule2-0816_Upside-dl2",
     "MAIPreform2_Spule0_0315_Upside_Thread": "spule-upside-hole",
     "MAIPreform2_Spule0_0315_Upside_Thread_256": "spule-upside-hole256"
 }
+# "MAIPreform2_Spule0_0315_Upside_Thread_256": "spule-upside-0315",

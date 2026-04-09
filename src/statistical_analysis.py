@@ -7,6 +7,7 @@ import pymc as pm
 import requests
 import seaborn as sns
 import statsmodels.api as sm
+import warnings
 from scipy.stats import mannwhitneyu
 from scipy.stats import spearmanr, pearsonr
 from skimage.feature import graycomatrix, graycoprops
@@ -85,16 +86,31 @@ def load_and_prepare_similarity_and_cross_results(similarity_filepath, cross_res
         df = pd.read_csv(raw_url, sep=';', engine='python')
 
         for _, row in df.iterrows():
+            if row.iloc[2] is None:
+                warnings.warn(
+                    f"Skipping empty row: {row.tolist()} in file: {src_dataset}",
+                    UserWarning
+                )
+                continue
+            elif (
+                    row.iloc[0] == 'Pipeline'
+                    and row.iloc[1] == ' OriginalScore'
+                    and row.iloc[2] == ' CrossApplication'
+                    and row.iloc[3] == ' CrossScore'
+            ):
+                print(f"Skipping header row: {row.tolist()} in file: {src_dataset}")
+                continue
+            else:
+                tgt_dataset = normalize_name(row.iloc[2])
+            src_dataset = normalize_name(src_dataset)
 
             try:
-                tgt_dataset = normalize_name(row.iloc[2])
-                src_dataset = normalize_name(src_dataset)
                 similarity = similarity_df.loc[
                     LONG_TO_SHORT_NAME[src_dataset],
                     LONG_TO_SHORT_NAME[tgt_dataset]
                 ]
-            except (KeyError, AttributeError) as e:
-                print(f"Skipping pair due to error: {e}")
+            except Exception as e:
+                print(f"Skipping pair due to error: {e} in file: {src_dataset} with target: {tgt_dataset}")
                 continue
 
             all_rows.append({

@@ -2,8 +2,8 @@ import os
 
 # Default File Paths
 
-#WDIR = os.path.join("D:\\", "dev", "github", "EstimatingInspectionTasks")
-WDIR = os.path.join("C:\\", "andreas_lokal", "github", "EstimatingInspectionTasks")
+WDIR = os.path.join("D:\\", "dev", "EstimatingInspectionTasks")
+#WDIR = os.path.join("C:\\", "andreas_lokal", "github", "EstimatingInspectionTasks")
 
 DS_ROOT_PATH = os.path.join("D:\\", "evias_expmts")
 
@@ -15,8 +15,8 @@ GITHUB_CROSS_APPLICATION_RESULTS_MEAN = ("https://api.github.com/repos/anmarchio
 GITHUB_CROSS_APPLICATION_RESULTS_BEST = ("https://api.github.com/repos/anmarchio/experiments/contents/test/"
                                     "cross_application/manual_hdev/best")
 
-#SIMILARITY_VALUES_FILE = "results-20250803.csv"
-SIMILARITY_VALUES_FILE = "results-20260115.csv"
+SIMILARITY_VALUES_FILE = "results-20250803.csv"
+#SIMILARITY_VALUES_FILE = "results-20260115.csv"
 
 # General Image Parameters
 
@@ -28,8 +28,8 @@ SHORT_TO_LONG_NAME = {
     "crack_forest": "CrackForest",
     "cable_missing_train": "MVTec_AD_Cable_Missing",
     "MT_Blowhole_train": "MT_Blowhole_train",
-    "kos10": "",
-    "kos25": "",
+    "kos10": "KolektorSSD",
+    "kos25": "KolektorSSD",
     "FabricDefectsAITEX": "FabricDefectsAITEX",
     "carpet": "MVTec_AD_Carpet",
     "leather": "MVTec_AD_Leather",
@@ -73,8 +73,10 @@ LONG_TO_SHORT_NAME = {
     "CrackForest": "crack_forest",
     "MVTec_AD_Cable_Missing": "cable_missing_train",
     "MT_Blowhole_train": "MT_Blowhole_train",
-    "Kos10": "kos10",
-    "Kos25": "kos25",
+    "KolektorSSD": "kos10",
+    "KollektorSSD": "kos10",
+    "KolektorSSD": "kos25",
+    "KollektorSSD": "kos25",
     "FabricDefectsAITEX": "FabricDefectsAITEX",
     "MVTec_AD_Carpet": "carpet",
     "MVTec_AD_Leather": "leather",
@@ -103,10 +105,12 @@ LONG_TO_SHORT_NAME = {
     "Pultrusion_Resin": "resin_cgp",
     "Pultrusion_Window": "window_cgp",
     "Pultrusion_Resin_Augmtd_mean": "resin_cgp_augmented",
+    "Pultrusion_Resin_Augmtd": "resin_cgp_augmented",
     "severstal-steel": "severstal",
     "MAIPreform2_Spule_0117": "spule-upside-0117",
     "MAIPreform2_Spule0_0816_Upside": "spule2-0816_Upside-dl1",
     "MAIPreform2_Spule2-0816": "spule2-0816_Upside-dl2",
+    "MAIPreform2_Spule0_0315_Upside": "spule-upside-hole",
     "MAIPreform2_Spule0_0315_Upside_Thread": "spule-upside-hole",
     "MAIPreform2_Spule0_0315_Upside_Thread_256": "spule-upside-hole256"
 }

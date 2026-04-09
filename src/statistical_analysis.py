@@ -315,6 +315,8 @@ def interpret_ols(results, predictor_name="similarity", target_name="cross_score
                 f"Overall, {predictor_name} does not appear to be a reliable predictor of {target_name}."
             )
 
+    statements.append("...\n")
+
     return "\n".join(statements)
 
 
@@ -466,4 +468,6 @@ def interpret_bayesian(trace):
     else:
         interpretation.append("The effect is uncertain and may be close to zero.")
 
-    return "\n".join(interpretation)
+    statements.append("...\n")
+
+    return "\n<<<\n".join(interpretation)

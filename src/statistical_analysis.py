@@ -468,6 +468,6 @@ def interpret_bayesian(trace):
     else:
         interpretation.append("The effect is uncertain and may be close to zero.")
 
-    statements.append("...\n")
+    interpretation.append("...\n")
 
     return "\n<<<\n".join(interpretation)

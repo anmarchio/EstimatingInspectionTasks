@@ -1,5 +1,6 @@
 import os
 
+import env_vars
 from env_vars import RESULTS_PATH, SIMILARITY_VALUES_FILE, \
     GITHUB_CROSS_APPLICATION_RESULTS_MEAN, GITHUB_CROSS_APPLICATION_RESULTS_BEST
 from experiment_params_data import DATASETS
@@ -9,7 +10,24 @@ from src.statistical_analysis import compute_correlation_analysis, compute_linea
     bayesian_regression
 
 
+def print_important_env_vars():
+    print("\nIMPORTANT ENV VARIABLES")
+    print("=" * 80)
+
+    for name, value in vars(env_vars).items():
+        # skip internal stuff and large mapping dicts
+        if name.startswith("__"):
+            continue
+        if name in ["SHORT_TO_LONG_NAME", "LONG_TO_SHORT_NAME"]:
+            continue
+
+        print(f"{name}: {value}")
+
+    print("=" * 80)
+    print()
+
 def show_menu():
+    print_important_env_vars()
     print("STUDY: Retrieval of Pipelines by Similarity")
     print("" + "=" * 50)
     print("[0] Exit")

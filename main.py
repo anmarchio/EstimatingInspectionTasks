@@ -12,7 +12,7 @@ from src.statistical_analysis import compute_correlation_analysis, compute_linea
 
 def print_important_env_vars():
     print("\nIMPORTANT ENV VARIABLES")
-    print("=" * 80)
+    print("-" * 50)
 
     for name, value in vars(env_vars).items():
         # skip internal stuff and large mapping dicts
@@ -23,8 +23,7 @@ def print_important_env_vars():
 
         print(f"{name}: {value}")
 
-    print("=" * 80)
-    print()
+    print("=" * 50)
 
 def show_menu():
     print_important_env_vars()

@@ -74,6 +74,12 @@ def compute_similarity_matrix(dataset_names, dataset_paths):
         print("Processing:", path)
         full_path = os.path.join(DS_ROOT_PATH, path, "images")
         emb = load_and_preprocess_images(full_path)
+
+        edge_val = compute_edge()
+        grad_val = compute_gradient()
+        text_val = compute_texture()
+        freq_val = compute_frequency()
+
         if emb is None:
             print(f"Warning: No images in {path}")
             emb = np.zeros((IMG_SIZE,))  # fallback

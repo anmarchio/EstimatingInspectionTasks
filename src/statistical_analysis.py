@@ -92,12 +92,11 @@ def load_and_prepare_similarity_and_cross_results(similarity_filepath, cross_res
                     UserWarning
                 )
                 continue
-            elif (
-                    row.iloc[0] == 'Pipeline'
+            elif (row.iloc[0] == 'Pipeline'
                     and row.iloc[1] == ' OriginalScore'
                     and row.iloc[2] == ' CrossApplication'
                     and row.iloc[3] == ' CrossScore'
-            ):
+                  ):
                 print(f"Skipping header row: {row.tolist()} in file: {src_dataset}")
                 continue
             else:

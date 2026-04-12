@@ -2,8 +2,8 @@ import os
 
 # Default File Paths
 
-WDIR = os.path.join("D:\\", "dev", "EstimatingInspectionTasks")
-#WDIR = os.path.join("C:\\", "andreas_lokal", "github", "EstimatingInspectionTasks")
+#WDIR = os.path.join("D:\\", "dev", "EstimatingInspectionTasks")
+WDIR = os.path.join("C:\\", "andreas_lokal", "github", "EstimatingInspectionTasks")
 
 DS_ROOT_PATH = os.path.join("D:\\", "evias_expmts")
 

@@ -3,6 +3,8 @@ import string
 from datetime import datetime
 from random import random
 
+import pandas as pd
+
 
 def replace_ambigous_title(title_str: str):
     title_str = title_str.replace('_training', '')
@@ -60,3 +62,27 @@ def log_message(function: str, dataset: str, msg: str):
 
     with open(curlogfile, "a") as logfile:
         logfile.write(log_entry)
+
+
+def print_similarity_matrix(file_path):
+    """Reads the similarity matrix from a CSV file and prints it."""
+    try:
+        #df = pd.read_csv(file_path)
+        df = pd.read_csv(file_path, index_col=0)
+
+        # Drop empty rows/cols
+        df = df.dropna(axis=0, how="all").dropna(axis=1, how="all")
+
+        similarity_matrix = df.values
+        dataset_names = df.columns.tolist()
+    except Exception as e:
+        print(f"Error reading CSV file: {e}")
+        return
+    # ---------- DISPLAY RESULTS ----------
+    print("\nCosine Similarity Matrix (rounded):\n")
+    header = "     " + "  ".join([name[:5] for name in dataset_names])
+    print(header)
+    for i, name in enumerate(dataset_names):
+        row = f"{name[:5]} " + "  ".join([f"{similarity_matrix[i, j]:.2f}" for j in range(len(dataset_names))])
+        print(row)
+    print("File: " + file_path)

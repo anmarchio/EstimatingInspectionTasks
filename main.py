@@ -6,6 +6,7 @@ from env_vars import RESULTS_PATH, SIMILARITY_VALUES_FILE, \
 from experiment_params_data import DATASETS
 from src.models.resnet_embedding import compute_similarity_matrix
 from src.plotting import plot_similarity_heatmap, show_similarity_results
+from src.similarity import select_complexity_function
 from src.statistical_analysis import compute_correlation_analysis, compute_linear_regression, compute_mann_whitney_u, \
     bayesian_regression
 
@@ -61,8 +62,11 @@ def main():
             # Compute similarity between dataset pairs
             print("[1] Computing similarity between datasets...")
             # ------------------------------------------------
-            result_path = compute_similarity_matrix(list(DATASETS.keys()), [v['train'] for k, v in DATASETS.items()])
+            result_path = select_complexity_function()
 
+            if result_path is None:
+                print("No similarity function selected. Returning to menu.")
+                continue
             plot_similarity_heatmap(result_path)
 
         if selection == 2:

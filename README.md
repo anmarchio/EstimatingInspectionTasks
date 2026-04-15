@@ -38,7 +38,7 @@ The project pipeline analyzes segmentation datasets by extracting feature embedd
 computing similarities, and evaluating 
 segmentation performance statistically.
 
-#### 🔧 Steps:
+### 🔧 Steps:
 * Convert images to grayscale
 * Extract feature embeddings using a ResNet model
 * Compute the cosine similarity between feature vectors
@@ -58,7 +58,7 @@ be mapped to an embedding
 &nbsp;&nbsp;&nbsp;&nbsp;_f(x)_ ∈ ℝ<sup>d</sup>.
 
 
-### 🔍 3. Similarity Computation
+### 🔍 2. Similarity Computation
 Goal: Measure pairwise similarity within each dataset cluster.
 
 * Compute cosine similarity between dataset feature vectors
@@ -71,7 +71,7 @@ Goal: Measure pairwise similarity within each dataset cluster.
 * `0.5 – 0.6` is moderate, but could be meaningful if your downstream task (CGP pipeline transfer) is sensitive to partial overlap in features.
 * `< 0.5` usually indicates the datasets differ enough that you wouldn’t expect strong cross-domain generalization.
 
-### 📏 4. MCC Score Computation
+### 📏 3. MCC Score Computation
 Goal: Evaluate segmentation performance on selected dataset pairs.
 
 * Cross-Apply CGP pipelines between each pair of datasets
@@ -85,13 +85,7 @@ Where:
 * FP = False Positives
 * FN = False Negatives
 
-### 📊 🧠 Statistical Hypothesis
-* Null Hypothesis (H0): There is no correlation between dataset similarity and cross-application performance.
-* Alternative Hypothesis (H1): Higher similarity does lead to better cross-application performance.
-
-_If the p-value < 0.05, you reject H0 and conclude that the correlation is statistically significant._
-
-#### Spearman Correlation
+### 📐 4. Spearman Correlation
 
 * Start with Spearman correlation (rank-based, non-parametric, robust to non-linear relationships):
 
@@ -109,7 +103,7 @@ Where:
 * If p > 0.05, the correlation is not statistically significant.
  
 
-#### Linear Regression
+### 📚 5. Linear Regression (OLS)
 
 Fit a simple regression model to quantify how much similarity influences performance:
 
@@ -122,7 +116,13 @@ _Where:_
 * β<sub>1</sub> = slope (how much performance changes with similarity)
 * ε = error term (residuals)
 
-#### Stratified Group Comparison
+### 🧠 x. Statistical Hypothesis
+* Null Hypothesis (H0): There is no correlation between dataset similarity and cross-application performance.
+* Alternative Hypothesis (H1): Higher similarity does lead to better cross-application performance.
+
+_If the p-value < 0.05, you reject H0 and conclude that the correlation is statistically significant._
+
+### [---] Stratified Group Comparison (DROPPED!)
 Divide dataset pairs into e.g. 3 bins:
 * High similarity (top 33%)
 * Medium similarity
@@ -132,15 +132,160 @@ Then run Mann-Whitney U-tests (non-parametric) between performance distributions
 
 *If p < 0.05, high similarity groups statistically outperform low similarity ones.*
 
-### 🎯 Scientific Goals
+## 🧪 In-Depth Analyses
+ TODO:
+- multi-dimensional similarity
+- comparing weak against strong pipelines
+- asymmetry
+- cluster datasets by transfer behavior (not similarity)
+- analyze failure modes
+- include additional predictors (original_score, dataset type, pipeline complexity)
+- Suggest / Try a reuse model
 
-* 📚 Understand Dataset Similarity
+### 📊 Multi-dimensional Similarity
+In addition to traditional OLS regression and correlation, we can also test specific hypotheses about the relationship between dataset similarity and segmentation performance. This allows a multi-dimensional insight.
 
-Gain insight into structural and visual similarities across datasets.
+Use several similarity measures to capture different aspects of dataset similarity:
+- CNN embeddings
+* Entropy: as defined by the shannon entropy
+* Blurriness
+* Brightness
+* Img Size: size of the image in pixels `W x H`
+* hist_entropy: ?
+* jpeg_complexity
+* fractal_dimension
+* texture_features
+* edge_density
+* laplacian_variance
+* num_superpixels
 
-* 🧪 Evaluate Segmentation Performance: Measure how performance varies with dataset similarity.
+Lbl:
+* label_count_per_image: no. of labels per image
+* lbl Size: size of the label's contained pixels
+* relative_label_size: size of label in px compared to image
+* lbl_hist_entropy
+* lbl_fractal_dimension
+* lbl_texture_features
+* lbl_edge_density
+* lbl_laplacian_variance
+* lbl_num_superpixels
 
-* 📐 Validate Statistically: Use robust methods (correlation, Mann-Whitney-U) to confirm hypotheses.
+
+### 📚 Comparing weak against strong pipelines
+
+Positive transfer frequency:
+
+`transfer rate= #(cross_score > 0) / total`
+
+👉 Pipelines with:
+* many small positive scores
+* better than pipelines with few extreme highs
+
+Hypothesis: **Overfitted strong pipelines are worse starting points than moderate ones.**
+
+💡Introduce _transfer score_ to normalize performance:
+
+`transfer_score = cross_score / original_score`
+
+* Removes bias from strong vs weak pipelines
+* Measures generalization efficiency
+* 👉 __Likely more informative than plain MCC.__
+
+### 🧪 Asymetry
+
+Analyze asymmetry by transfer score in transfer performance matrix:
+
+`T(A → B) - T(B → A)`
+
+👉 __Rank by `|T(A → B) - T(B → A)|` to identify pairs with strong asymmetry.__
+
+### 🧬 Cluster datasets by transfer behavior (not similarity)
+
+Instead of your similarity matrix:
+
+Build new feature vector per dataset:
+* vector of cross-scores to all other datasets
+
+Then:
+* hierarchical clustering / spectral clustering
+
+👉 This gives:
+* “functional similarity” instead of visual similarity
+
+💡 This is likely a publishable insight:
+* similarity in transfer space ≠ similarity in feature space
+
+### 📉 Analyze failure modes
+
+Split into:
+* successful transfer (MCC > 0.1)
+* failed transfer (MCC < 0)
+
+Then compare:
+* similarity distributions
+* original_score distributions
+
+👉 Hypothesis:
+* failure is not random
+* likely tied to:
+  * high original_score (overfitting)
+  * or specific dataset types
+  
+### 📦 Include additional predictors
+
+Right now you only use:
+* similarity
+
+You should include:
+* original_score
+* dataset type (categorical)
+* pipeline complexity (if available)
+* variance of similarity distribution
+
+#### Pipeline Complexity:
+
+- number of operators
+- pipeline depth (longest path)
+- number of unique operators
+- total number of parameters (if applicable)
+- avg parameter per operator (computed)
+
+
+👉 Model:
+
+`cross_score ∼ similarity + original_score + interactions`
+
+### >>> 📚 Insight Table
+
+| Pipeline       | Mean Asymetry | Mean Transfer Rate | Mean Transfer Score | # Positive Transfers |
+|----------------|----------------|--------------------|---------------------|----------------------|
+| Pipeline Label | `T(A → B) - T(B → A)` | `transfer rate= #(cross_score > 0) / total` | `transfer_score = cross_score / original_score` | `%(#(MCC > 0.1))`    |
+
+
+### >>> 📚 Reuse model
+
+Proposed reuse model:
+
+`reuse proxy ∼ original_score + pipeline complexity + similarity metrics`
+
+Where reuse proxy is one of:
+
+* cross_score
+* positive transfer indicator: cross_score > 0
+* strong transfer indicator: cross_score > 0.05
+* source pipeline mean transfer across targets
+
+And I would strongly consider making the main outcome a binary classification, not only regression.
+
+Why:
+
+* “Will this likely be reusable?” is often more practical than predicting exact MCC
+* classification can be more stable when the continuous target is noisy and heavy-tailed
+
+## 💡 >>> Expected Conclusion
+
+__Pipeline reuse is not determined by dataset similarity alone, but by the compatibility between dataset characteristics (e.g., edge density, texture complexity) and the structural composition of the pipeline.__
+
 
 ## 📖 How to Cite
 If you use this code or ideas from our paper, please cite:

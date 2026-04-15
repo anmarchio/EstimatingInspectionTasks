@@ -133,14 +133,14 @@ Then run Mann-Whitney U-tests (non-parametric) between performance distributions
 *If p < 0.05, high similarity groups statistically outperform low similarity ones.*
 
 ## 🧪 In-Depth Analyses
- TODO:
-- multi-dimensional similarity
-- comparing weak against strong pipelines
-- asymmetry
-- cluster datasets by transfer behavior (not similarity)
-- analyze failure modes
-- include additional predictors (original_score, dataset type, pipeline complexity)
-- Suggest / Try a reuse model
+👉👉👉 **T O D O:**
+- [ ] multi-dimensional similarity
+- [ ] comparing weak against strong pipelines
+- [ ] asymmetry
+- [ ] cluster datasets by transfer behavior (not similarity)
+- [ ] analyze failure modes
+- [ ] include additional predictors (original_score, dataset type, pipeline complexity)
+- [ ] Suggest / Try a reuse model
 
 ### 📊 Multi-dimensional Similarity
 In addition to traditional OLS regression and correlation, we can also test specific hypotheses about the relationship between dataset similarity and segmentation performance. This allows a multi-dimensional insight.
@@ -151,13 +151,17 @@ Use several similarity measures to capture different aspects of dataset similari
 * Blurriness
 * Brightness
 * Img Size: size of the image in pixels `W x H`
-* hist_entropy: ?
+- [ ] hist_entropy: ?
 * jpeg_complexity
 * fractal_dimension
 * texture_features
-* edge_density
+- [ ] edge_density
 * laplacian_variance
 * num_superpixels
+* (?) Frequency / texture similarity
+  * FFT radial spectrum distance
+  * LBP histogram distance
+  * Gabor response statistics
 
 Lbl:
 * label_count_per_image: no. of labels per image

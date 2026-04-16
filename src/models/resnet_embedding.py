@@ -16,7 +16,7 @@ def get_model():
     return feature_extractor
 
 
-def load_and_preprocess_images(dataset_path, max_images=50):
+def resnet_embedding(dataset_path, max_images=50):
     embeddings = []
     image_files = [f for f in os.listdir(dataset_path) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp'))][
                   :max_images]

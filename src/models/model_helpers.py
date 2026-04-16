@@ -48,3 +48,18 @@ def shannon_entropy_from_hist(hist):
     hist = hist / (hist.sum() + 1e-12)
     hist = hist[hist > 0]
     return -np.sum(hist * np.log2(hist))
+
+
+# -----------------------------
+# Embedding size helper
+# -----------------------------
+def get_embedding_dim(choice):
+    dims = {
+        "2": 4,   # jpeg_complexity
+        "3": 6,   # histogram_entropy
+        "4": 12,  # texture_features
+        "5": 6,   # edge_density
+        "6": 6,   # number_of_superpixels
+        "7": 8,   # fourier_frequency
+    }
+    return dims.get(choice, None)

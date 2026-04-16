@@ -1,12 +1,9 @@
-import os
+import cv2
 import cv2
 import numpy as np
-import pandas as pd
 from PIL import Image
 from skimage.feature import graycomatrix, graycoprops
 from skimage.segmentation import slic
-from sklearn.metrics.pairwise import cosine_similarity
-from tqdm import tqdm
 
 from src.models.model_helpers import list_image_files, load_image_gray, shannon_entropy_from_hist, safe_mean_std, \
     load_image_color
@@ -289,18 +286,3 @@ def fourier_frequency(folder_path, resize_to=(256, 256)):
         return None
 
     return safe_mean_std(feats)
-
-
-# -----------------------------
-# Embedding size helper
-# -----------------------------
-def get_embedding_dim(choice):
-    dims = {
-        "2": 4,   # jpeg_complexity
-        "3": 6,   # histogram_entropy
-        "4": 12,  # texture_features
-        "5": 6,   # edge_density
-        "6": 6,   # number_of_superpixels
-        "7": 8,   # fourier_frequency
-    }
-    return dims.get(choice, None)

@@ -19,12 +19,12 @@ def select_complexity_function():
     print("\nSelect a complexity function:")
     print("[1] ResNet embedding")
     print("[2] JPEG Complexity")
-    print("[3] Histrogram Entropy")
+    print("[3] Histogram Entropy")
     print("[4] Texture Complexity")
     print("[5] Edge Density")
     print("[6] Number of Superpixels")
     print("[7] Fourier Frequency")
-    print("[0] EXIT")
+    print("[0] BACK TO MENU --->")
 
     choice = input("Enter your choice (1-7): ").strip()
 

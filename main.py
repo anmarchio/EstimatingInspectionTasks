@@ -3,8 +3,6 @@ import os
 import env_vars
 from env_vars import RESULTS_PATH, SIMILARITY_VALUES_FILE, \
     GITHUB_CROSS_APPLICATION_RESULTS_MEAN, GITHUB_CROSS_APPLICATION_RESULTS_BEST
-from experiment_params_data import DATASETS
-from src.models.resnet_embedding import compute_similarity_matrix
 from src.plotting import plot_similarity_heatmap, show_similarity_results
 from src.similarity import select_complexity_function
 from src.statistical_analysis import compute_correlation_analysis, compute_linear_regression, compute_mann_whitney_u, \

@@ -26,8 +26,8 @@ def read_df(file_path):
 
 def write_df_to_csv(df):
     result_dir = os.path.join(RESULTS_PATH)
-    current_datetime = datetime.now().strftime("%Y%m%d%-H%M%S")
-    result_file = os.path.join(result_dir, f"results-{current_date}.csv")
+    current_datetime = datetime.now().strftime("%Y%m%d-%H%M%S")
+    result_file = os.path.join(result_dir, f"results-{current_datetime}.csv")
 
     if not os.path.exists(result_dir):
         os.makedirs(result_dir)

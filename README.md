@@ -134,7 +134,7 @@ Then run Mann-Whitney U-tests (non-parametric) between performance distributions
 
 ## 🧪 In-Depth Analyses
 👉👉👉 **T O D O:**
-- [ ] multi-dimensional similarity
+- [ ] Multi-dimensional Similarity
 - [ ] comparing weak against strong pipelines
 - [ ] asymmetry
 - [ ] cluster datasets by transfer behavior (not similarity)
@@ -147,33 +147,48 @@ In addition to traditional OLS regression and correlation, we can also test spec
 
 Use several similarity measures to capture different aspects of dataset similarity:
 - CNN embeddings
-* Entropy: as defined by the shannon entropy
-* Blurriness
-* Brightness
-* Img Size: size of the image in pixels `W x H`
-- [ ] hist_entropy: ?
-* jpeg_complexity
-* fractal_dimension
-* texture_features
+- [ ] jpeg_complexity?
+- [ ] hist_entropy
+- [ ] texture_features
 - [ ] edge_density
-* laplacian_variance
-* num_superpixels
-* (?) Frequency / texture similarity
-  * FFT radial spectrum distance
-  * LBP histogram distance
-  * Gabor response statistics
+- [ ] number_of_superpixels
+- [ ] fourier_frequency
 
-Lbl:
-* label_count_per_image: no. of labels per image
-* lbl Size: size of the label's contained pixels
-* relative_label_size: size of label in px compared to image
-* lbl_hist_entropy
-* lbl_fractal_dimension
-* lbl_texture_features
-* lbl_edge_density
-* lbl_laplacian_variance
-* lbl_num_superpixels
+👉Then fit a regression model for each.
 
+#### NEXT: Reusability model
+
+* Mean transfer score: `mean_transfer_score = mean(cross_score / original_score)`
+* Median transfer score: `median_transfer_score = median(cross_score / original_score)`
+  * robust against outliers (important in your data)
+
+* Transfer rate: `transfer_rate = #(cross_score > 0) / total`
+  * measures how often the pipeline works at all
+
+* Strong transfer rate: `strong_transfer_rate = #(cross_score > 0.1) / total`
+  * measures how often the pipeline works well
+
+* Worst-case (risk): `worst_case = min(cross_score)`
+  * measures the potential downside of reuse
+
+* Variacnce /std: `transfer_variance = var(cross_score)`
+  * measures stability vs brittleness
+
+#### 🔥 Best practical setup
+
+For each pipeline - Compute:
+* mean_cross_score
+* median_cross_score
+* transfer_rate (>0)
+* strong_transfer_rate (>0.1)
+* std_cross_score
+* min_cross_score
+
+Then:
+* 👉 Filter: transfer_rate > 0.5
+* 👉 Rank by:
+  * mean_cross_score
+  * OR combined score
 
 ### 📚 Comparing weak against strong pipelines
 

@@ -426,13 +426,16 @@ def bayesian_regression(similarity_filepath, cross_results_dir):
     y = correlation_df["cross_score"].values
 
     with pm.Model() as model:
+        # Use Data for numpy arrays so PyMC can work with symbolic variables
+        x_shared = pm.Data("x", x)
+
         # Priors
         alpha = pm.Normal("alpha", mu=0, sigma=1)
         beta = pm.Normal("beta", mu=0, sigma=1)
         sigma = pm.HalfNormal("sigma", sigma=1)
 
-        # Expected value
-        mu = alpha + beta * x
+        # Expected value - use standard arithmetic; pm.Data provides a symbolic array
+        mu = alpha + beta * x_shared
 
         # Likelihood
         y_obs = pm.Normal("y_obs", mu=mu, sigma=sigma, observed=y)
@@ -470,3 +473,105 @@ def interpret_bayesian(trace):
     interpretation.append("...\n")
 
     return "\n<<<\n".join(interpretation)
+
+def deep_linear_regression(similarity_filepath, cross_results_dir, transfer_rate_threshold=0.5, top_n=20):
+    """
+    Insight analysis per pipeline (source):
+    - Computes for each pipeline:
+      * mean_cross_score
+      * median_cross_score
+      * transfer_rate (>0)
+      * strong_transfer_rate (>0.1)
+      * std_cross_score
+      * min_cross_score
+    - Filters pipelines with transfer_rate > transfer_rate_threshold
+    - Ranks by mean_cross_score and by a combined score (mean * transfer_rate)
+
+    Returns a dict with keys:
+      - all: full dataframe of pipeline statistics
+      - filtered: dataframe after applying transfer_rate filter
+      - top_by_mean: top_n pipelines sorted by mean_cross_score
+      - top_by_combined: top_n pipelines sorted by combined_score
+
+    Parameters:
+      similarity_filepath: path to similarity CSV (passed through helper loader)
+      cross_results_dir: URL or path used by loader
+      transfer_rate_threshold: float threshold to filter pipelines (default 0.5)
+      top_n: number of top pipelines to return for the rankings
+    """
+    # Load data using existing helper
+    try:
+        _, correlation_df = load_and_prepare_similarity_and_cross_results(similarity_filepath, cross_results_dir)
+    except Exception as e:
+        raise RuntimeError(f"Error loading data: {e}")
+
+    if correlation_df.empty:
+        print("No cross application data was found (empty DataFrame).")
+        empty_df = pd.DataFrame()
+        return {
+            'all': empty_df,
+            'filtered': empty_df,
+            'top_by_mean': empty_df,
+            'top_by_combined': empty_df
+        }
+
+    # Ensure cross_score numeric
+    correlation_df = correlation_df.copy()
+    correlation_df['cross_score'] = pd.to_numeric(correlation_df['cross_score'], errors='coerce')
+
+    # Drop rows with NaN cross_score
+    correlation_df = correlation_df.dropna(subset=['cross_score'])
+
+    # Group by source (pipeline)
+    grouped = correlation_df.groupby('source')['cross_score']
+
+    mean_cross = grouped.mean()
+    median_cross = grouped.median()
+    std_cross = grouped.std().fillna(0)
+    min_cross = grouped.min()
+    count_targets = grouped.count()
+    transfer_rate = grouped.apply(lambda x: np.mean(x > 0))
+    strong_transfer_rate = grouped.apply(lambda x: np.mean(x > 0.1))
+
+    stats_df = pd.DataFrame({
+        'mean_cross_score': mean_cross,
+        'median_cross_score': median_cross,
+        'std_cross_score': std_cross,
+        'min_cross_score': min_cross,
+        'count_targets': count_targets,
+        'transfer_rate': transfer_rate,
+        'strong_transfer_rate': strong_transfer_rate
+    })
+
+    # Combined score: simple and interpretable: mean * transfer_rate
+    stats_df['combined_score'] = stats_df['mean_cross_score'] * stats_df['transfer_rate']
+
+    # Add additional helpful columns
+    stats_df['mean_per_target'] = stats_df['mean_cross_score']  # alias for readability
+
+    # Filter
+    filtered_df = stats_df[stats_df['transfer_rate'] > transfer_rate_threshold].copy()
+
+    # Sortings
+    top_by_mean = filtered_df.sort_values('mean_cross_score', ascending=False).head(top_n)
+    top_by_combined = filtered_df.sort_values('combined_score', ascending=False).head(top_n)
+
+    # Print short summary
+    total_pipelines = len(stats_df)
+    filtered_pipelines = len(filtered_df)
+    print(f"Pipelines insgesamt: {total_pipelines}")
+    print(f"Pipelines mit transfer_rate > {transfer_rate_threshold}: {filtered_pipelines}")
+    if not top_by_mean.empty:
+        print("\nTop pipelines nach mean_cross_score:")
+        print(top_by_mean[['mean_cross_score', 'transfer_rate', 'combined_score']].head(10))
+    if not top_by_combined.empty:
+        print("\nTop pipelines nach combined_score (mean * transfer_rate):")
+        print(top_by_combined[['mean_cross_score', 'transfer_rate', 'combined_score']].head(10))
+
+    # Return results for programmatic use
+    return {
+        'all': stats_df.sort_values('mean_cross_score', ascending=False),
+        'filtered': filtered_df.sort_values('mean_cross_score', ascending=False),
+        'top_by_mean': top_by_mean,
+        'top_by_combined': top_by_combined
+    }

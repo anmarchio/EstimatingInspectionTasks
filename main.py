@@ -6,7 +6,7 @@ from env_vars import RESULTS_PATH, SIMILARITY_VALUES_FILE, \
 from src.plotting import plot_similarity_heatmap, show_similarity_results
 from src.similarity import select_complexity_function
 from src.statistical_analysis import compute_correlation_analysis, compute_linear_regression, compute_mann_whitney_u, \
-    bayesian_regression
+    bayesian_regression, deep_linear_regression
 
 
 def print_important_env_vars():
@@ -35,6 +35,7 @@ def show_menu():
     print("[4] Linear Regression")
     print("[5] Mann-Whitney-U Test")
     print("[6] Bayesian Linear Regression")
+    print("[6] Deep Insight Linear Regression")
     print("" + "-" * 50)
     selection = input("Go to: ")
 
@@ -178,6 +179,36 @@ def main():
             print("For BEST MCC:")
             print("-" * 50)
             bayesian_regression(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
+                                GITHUB_CROSS_APPLICATION_RESULTS_BEST)
+        if selection == 7:
+            # -------------------------------------------------
+            # Insight Analysis:
+            # For each pipeline - Compute:
+            # * mean_cross_score
+            # * median_cross_score
+            # * transfer_rate (>0)
+            # * strong_transfer_rate (>0.1)
+            # * std_cross_score
+            # * min_cross_score
+            #
+            # Then:
+            # * 👉 Filter: transfer_rate > 0.5
+            # * 👉 Rank by:
+            #  * mean_cross_score
+            #  * OR combined score
+            # -------------------------------------------------
+            print("[7] Performing Insight Analysis ...")
+            print("-> Fitting a linear regression model with multiple metrics (mean/median cross_score, "
+                  "transfer_rate and statisticial metrics.")
+
+            print("For MEAN MCC:")
+            print("-" * 50)
+            deep_linear_regression(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
+                                GITHUB_CROSS_APPLICATION_RESULTS_MEAN)
+
+            print("For BEST MCC:")
+            print("-" * 50)
+            deep_linear_regression(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
                                 GITHUB_CROSS_APPLICATION_RESULTS_BEST)
 
         if selection > 6:

@@ -14,7 +14,7 @@ from src.models.resnet_embedding import resnet_embedding
 from src.utils import print_similarity_matrix
 
 
-def select_complexity_function():
+def compute_complexity_metrics():
     """Allow user to select a complexity function via command line."""
     print("\nSelect a complexity function:")
     print("[1] ResNet embedding")
@@ -26,17 +26,27 @@ def select_complexity_function():
     print("[7] Fourier Frequency")
     print("[0] BACK TO MENU --->")
 
-    choice = input("Enter your choice (1-7): ").strip()
 
-    if "1" <= choice <= "7":
-        compute_similarity(choice, list(DATASETS.keys()), [v['train'] for k, v in DATASETS.items()])
-        return None
-    else:
-        print("Exiting similarity computation.")
-        return None
+    for i in range(1, 8):
+        compute_similarity(i, list(DATASETS.keys()), [v['train'] for k, v in DATASETS.items()])
+
 
 
 def compute_similarity(choice, dataset_names, dataset_paths):
+    """
+    :param choice:
+        1: ResNet embedding
+        2: JPEG Complexity
+        3: Histogram Entropy
+        4: Texture Complexity
+        5: Edge Density
+        6: Number of Superpixels
+        7: Fourier Frequency
+    :param dataset_names:
+
+    :param dataset_paths:
+    :return:
+    """
     all_embeddings = []
     for path in tqdm(dataset_paths):
         print("Processing:", path)

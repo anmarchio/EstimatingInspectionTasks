@@ -1,3 +1,5 @@
+import warnings
+
 import arviz as az
 import cv2
 import matplotlib.pyplot as plt
@@ -7,7 +9,6 @@ import pymc as pm
 import requests
 import seaborn as sns
 import statsmodels.api as sm
-import warnings
 from scipy.stats import mannwhitneyu
 from scipy.stats import spearmanr, pearsonr
 from skimage.feature import graycomatrix, graycoprops
@@ -474,7 +475,8 @@ def interpret_bayesian(trace):
 
     return "\n<<<\n".join(interpretation)
 
-def deep_linear_regression(similarity_filepath, cross_results_dir, transfer_rate_threshold=0.5, top_n=20):
+
+def linear_regression_on_multiple_similarity_metrics(similarity_filepath, cross_results_dir, transfer_rate_threshold=0.5, top_n=20):
     """
     Insight analysis per pipeline (source):
     - Computes for each pipeline:
@@ -559,13 +561,13 @@ def deep_linear_regression(similarity_filepath, cross_results_dir, transfer_rate
     # Print short summary
     total_pipelines = len(stats_df)
     filtered_pipelines = len(filtered_df)
-    print(f"Pipelines insgesamt: {total_pipelines}")
-    print(f"Pipelines mit transfer_rate > {transfer_rate_threshold}: {filtered_pipelines}")
+    print(f"Pipelines total: {total_pipelines}")
+    print(f"Pipelines by transfer_rate > {transfer_rate_threshold}: {filtered_pipelines}")
     if not top_by_mean.empty:
-        print("\nTop pipelines nach mean_cross_score:")
+        print("\nTop pipelines by mean_cross_score:")
         print(top_by_mean[['mean_cross_score', 'transfer_rate', 'combined_score']].head(10))
     if not top_by_combined.empty:
-        print("\nTop pipelines nach combined_score (mean * transfer_rate):")
+        print("\nTop pipelines by combined_score (mean * transfer_rate):")
         print(top_by_combined[['mean_cross_score', 'transfer_rate', 'combined_score']].head(10))
 
     # Return results for programmatic use
@@ -575,3 +577,627 @@ def deep_linear_regression(similarity_filepath, cross_results_dir, transfer_rate
         'top_by_mean': top_by_mean,
         'top_by_combined': top_by_combined
     }
+
+
+# ==========================================
+# Pipeline Reuse & Multi-Metric Analysis
+# ==========================================
+
+def load_cross_results_with_original_scores(cross_results_dir):
+    """
+    Load cross-application results from the GitHub directory and preserve:
+      - source
+      - target
+      - original_score
+      - cross_score
+
+    Parameters
+    ----------
+    cross_results_dir : str
+        GitHub API directory URL containing the *_pipeline.txt files.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: source, target, original_score, cross_score
+    """
+    all_rows = []
+
+    response = requests.get(cross_results_dir)
+    response.raise_for_status()
+    cross_results_files = [item for item in response.json() if item["type"] == "file"]
+
+    for file in cross_results_files:
+        src_dataset = file["name"]
+
+        if not src_dataset.endswith("_pipeline.txt"):
+            continue
+
+        raw_url = file["download_url"]
+        df = pd.read_csv(raw_url, sep=';', engine='python')
+
+        for _, row in df.iterrows():
+            if len(row) < 4:
+                continue
+
+            if row.iloc[2] is None:
+                warnings.warn(
+                    f"Skipping empty row: {row.tolist()} in file: {src_dataset}",
+                    UserWarning
+                )
+                continue
+
+            # skip repeated headers inside file
+            if (
+                str(row.iloc[0]).strip() == 'Pipeline'
+                and str(row.iloc[1]).strip() == 'OriginalScore'
+                and str(row.iloc[2]).strip() == 'CrossApplication'
+                and str(row.iloc[3]).strip() == 'CrossScore'
+            ):
+                continue
+
+            try:
+                tgt_dataset = normalize_name(str(row.iloc[2]))
+                src_name = normalize_name(str(src_dataset))
+
+                original_score = float(str(row.iloc[1]).replace(",", "."))
+                cross_score = float(str(row.iloc[3]).replace(",", "."))
+            except Exception as e:
+                print(f"Skipping malformed row in {src_dataset}: {e} | row={row.tolist()}")
+                continue
+
+            all_rows.append({
+                "source": src_name,
+                "target": tgt_dataset,
+                "original_score": original_score,
+                "cross_score": cross_score
+            })
+
+    return pd.DataFrame(all_rows)
+
+
+def load_multi_similarity_and_cross_results(similarity_filepaths, cross_results_dir):
+    """
+    Merge multiple pairwise similarity matrices with cross-application results.
+
+    Parameters
+    ----------
+    similarity_filepaths : dict[str, str]
+        Mapping {metric_name: filepath_to_similarity_csv}
+    cross_results_dir : str
+        GitHub API directory URL containing the *_pipeline.txt files.
+
+    Returns
+    -------
+    dict
+        {
+            "similarity_dfs": dict[str, pd.DataFrame],
+            "merged_df": pd.DataFrame
+        }
+
+    Notes
+    -----
+    - Similarity matrices must have dataset names as both index and columns.
+    - Names are matched via LONG_TO_SHORT_NAME using normalized source/target names.
+    """
+    cross_df = load_cross_results_with_original_scores(cross_results_dir)
+
+    if cross_df.empty:
+        return {
+            "similarity_dfs": {},
+            "merged_df": cross_df
+        }
+
+    similarity_dfs = {}
+    merged_df = cross_df.copy()
+
+    for metric_name, filepath in similarity_filepaths.items():
+        with open(filepath, 'r', encoding='utf-8') as f:
+            sim_df = pd.read_csv(
+                filepath,
+                index_col=0,
+                usecols=lambda col: col != filepath.split('/')[-1]
+            )
+
+        sim_df.columns = sim_df.columns.astype(str).str.strip()
+        sim_df.index = sim_df.index.astype(str).str.strip()
+        similarity_dfs[metric_name] = sim_df
+
+        values = []
+        for _, row in merged_df.iterrows():
+            src = row["source"]
+            tgt = row["target"]
+
+            try:
+                src_key = LONG_TO_SHORT_NAME[src]
+                tgt_key = LONG_TO_SHORT_NAME[tgt]
+                sim_val = sim_df.loc[src_key, tgt_key]
+                sim_val = float(str(sim_val).replace(",", "."))
+            except Exception:
+                sim_val = np.nan
+
+            values.append(sim_val)
+
+        merged_df[metric_name] = values
+
+    return {
+        "similarity_dfs": similarity_dfs,
+        "merged_df": merged_df
+    }
+
+
+def compute_source_transfer_statistics(cross_results_dir, strong_transfer_threshold=0.1):
+    """
+    Compute source-pipeline level transfer statistics.
+
+    Parameters
+    ----------
+    cross_results_dir : str
+        GitHub API directory URL containing the *_pipeline.txt files.
+    strong_transfer_threshold : float, default=0.1
+        Threshold above which a transfer is considered 'strong'.
+
+    Returns
+    -------
+    pd.DataFrame
+        Indexed by source dataset / pipeline with columns:
+        - mean_cross_score
+        - median_cross_score
+        - std_cross_score
+        - min_cross_score
+        - max_cross_score
+        - mean_original_score
+        - mean_drop
+        - retention_mean
+        - transfer_rate
+        - strong_transfer_rate
+        - count_targets
+        - combined_score
+    """
+    cross_df = load_cross_results_with_original_scores(cross_results_dir)
+
+    if cross_df.empty:
+        return pd.DataFrame()
+
+    df = cross_df.copy()
+    df["score_drop"] = df["original_score"] - df["cross_score"]
+
+    # ratio can explode when original_score is close to zero
+    df["retention"] = np.where(
+        np.abs(df["original_score"]) > 1e-9,
+        df["cross_score"] / df["original_score"],
+        np.nan
+    )
+    df["positive_transfer"] = (df["cross_score"] > 0).astype(int)
+    df["strong_transfer"] = (df["cross_score"] > strong_transfer_threshold).astype(int)
+
+    grouped = df.groupby("source")
+
+    out = grouped.agg(
+        mean_cross_score=("cross_score", "mean"),
+        median_cross_score=("cross_score", "median"),
+        std_cross_score=("cross_score", "std"),
+        min_cross_score=("cross_score", "min"),
+        max_cross_score=("cross_score", "max"),
+        mean_original_score=("original_score", "mean"),
+        mean_drop=("score_drop", "mean"),
+        retention_mean=("retention", "mean"),
+        transfer_rate=("positive_transfer", "mean"),
+        strong_transfer_rate=("strong_transfer", "mean"),
+        count_targets=("target", "count")
+    ).reset_index()
+
+    out["std_cross_score"] = out["std_cross_score"].fillna(0.0)
+
+    # A simple ranking score balancing quality + robustness
+    out["combined_score"] = (
+        out["mean_cross_score"] * out["transfer_rate"]
+        - 0.25 * out["std_cross_score"]
+    )
+
+    return out.sort_values("combined_score", ascending=False)
+
+
+def compare_single_metric_ols(similarity_filepaths, cross_results_dir, standardize=True):
+    """
+    Fit one OLS model per similarity metric:
+        cross_score ~ metric
+
+    Parameters
+    ----------
+    similarity_filepaths : dict[str, str]
+        Mapping {metric_name: filepath}
+    cross_results_dir : str
+        GitHub API directory URL
+    standardize : bool, default=True
+        Z-standardize predictor before regression.
+
+    Returns
+    -------
+    dict
+        {
+            "models": dict[str, statsmodels.regression.linear_model.RegressionResultsWrapper],
+            "summary_df": pd.DataFrame,
+            "merged_df": pd.DataFrame
+        }
+    """
+    loaded = load_multi_similarity_and_cross_results(similarity_filepaths, cross_results_dir)
+    df = loaded["merged_df"].copy()
+
+    models = {}
+    rows = []
+
+    for metric_name in similarity_filepaths.keys():
+        tmp = df[["cross_score", metric_name]].dropna().copy()
+
+        if len(tmp) < 5:
+            print(f"Skipping {metric_name}: not enough valid observations.")
+            continue
+
+        x = tmp[metric_name].astype(float)
+        if standardize:
+            x_std = x.std(ddof=0)
+            if x_std > 0:
+                x = (x - x.mean()) / x_std
+
+        X = sm.add_constant(x)
+        y = tmp["cross_score"].astype(float)
+
+        model = sm.OLS(y, X).fit()
+        models[metric_name] = model
+
+        coef_name = metric_name if metric_name in model.params.index else model.params.index[-1]
+
+        rows.append({
+            "metric": metric_name,
+            "n_obs": int(model.nobs),
+            "r_squared": model.rsquared,
+            "adj_r_squared": model.rsquared_adj,
+            "coef": model.params[coef_name],
+            "p_value": model.pvalues[coef_name],
+            "aic": model.aic,
+            "bic": model.bic
+        })
+
+    summary_df = pd.DataFrame(rows).sort_values("r_squared", ascending=False)
+
+    return {
+        "models": models,
+        "summary_df": summary_df,
+        "merged_df": df
+    }
+
+
+def compute_similarity_metric_correlations(similarity_filepaths, cross_results_dir, method="pearson"):
+    """
+    Compute pairwise correlations between similarity metrics.
+
+    Parameters
+    ----------
+    similarity_filepaths : dict[str, str]
+        Mapping {metric_name: filepath}
+    cross_results_dir : str
+        GitHub API directory URL
+    method : str, default='pearson'
+        Correlation method for pandas.DataFrame.corr
+
+    Returns
+    -------
+    pd.DataFrame
+        Correlation matrix among similarity metrics.
+    """
+    loaded = load_multi_similarity_and_cross_results(similarity_filepaths, cross_results_dir)
+    df = loaded["merged_df"].copy()
+
+    metric_cols = list(similarity_filepaths.keys())
+    metric_df = df[metric_cols].apply(pd.to_numeric, errors="coerce")
+
+    return metric_df.corr(method=method)
+
+
+def fit_combined_ols_model(
+    similarity_filepaths,
+    cross_results_dir,
+    include_original_score=True,
+    standardize_predictors=True,
+    drop_high_correlation_above=None
+):
+    """
+    Fit one combined OLS model:
+        cross_score ~ metric_1 + metric_2 + ... (+ original_score)
+
+    Parameters
+    ----------
+    similarity_filepaths : dict[str, str]
+        Mapping {metric_name: filepath}
+    cross_results_dir : str
+        GitHub API directory URL
+    include_original_score : bool, default=True
+        Whether to include original_score as predictor.
+    standardize_predictors : bool, default=True
+        Z-standardize all predictors.
+    drop_high_correlation_above : float or None, default=None
+        If set (e.g. 0.85), greedily drops later predictors that are
+        highly correlated with earlier ones.
+
+    Returns
+    -------
+    dict
+        {
+            "model": statsmodels regression result,
+            "used_predictors": list[str],
+            "dropped_predictors": list[str],
+            "dataframe": pd.DataFrame
+        }
+    """
+    loaded = load_multi_similarity_and_cross_results(similarity_filepaths, cross_results_dir)
+    df = loaded["merged_df"].copy()
+
+    predictor_cols = list(similarity_filepaths.keys())
+    if include_original_score:
+        predictor_cols.append("original_score")
+
+    work_df = df[["cross_score"] + predictor_cols].copy()
+    work_df = work_df.apply(pd.to_numeric, errors="coerce").dropna()
+
+    used_predictors = predictor_cols.copy()
+    dropped_predictors = []
+
+    if drop_high_correlation_above is not None and len(used_predictors) > 1:
+        corr = work_df[used_predictors].corr().abs()
+        keep = []
+        for col in used_predictors:
+            if not keep:
+                keep.append(col)
+                continue
+            too_similar = any(corr.loc[col, kept] > drop_high_correlation_above for kept in keep)
+            if too_similar:
+                dropped_predictors.append(col)
+            else:
+                keep.append(col)
+        used_predictors = keep
+
+    X = work_df[used_predictors].copy()
+
+    if standardize_predictors:
+        for col in X.columns:
+            col_std = X[col].std(ddof=0)
+            if col_std > 0:
+                X[col] = (X[col] - X[col].mean()) / col_std
+            else:
+                X[col] = 0.0
+
+    X = sm.add_constant(X)
+    y = work_df["cross_score"]
+
+    model = sm.OLS(y, X).fit()
+
+    return {
+        "model": model,
+        "used_predictors": used_predictors,
+        "dropped_predictors": dropped_predictors,
+        "dataframe": work_df
+    }
+
+
+def fit_transfer_logistic_model(
+    similarity_filepaths,
+    cross_results_dir,
+    good_transfer_threshold=0.05,
+    include_original_score=True,
+    standardize_predictors=True
+):
+    """
+    Fit a logistic regression model:
+        P(good_transfer) ~ metric_1 + metric_2 + ... (+ original_score)
+
+    where:
+        good_transfer = 1 if cross_score > good_transfer_threshold else 0
+
+    Parameters
+    ----------
+    similarity_filepaths : dict[str, str]
+        Mapping {metric_name: filepath}
+    cross_results_dir : str
+        GitHub API directory URL
+    good_transfer_threshold : float, default=0.05
+        Threshold for positive / useful transfer.
+    include_original_score : bool, default=True
+        Whether to include original_score.
+    standardize_predictors : bool, default=True
+        Z-standardize predictors.
+
+    Returns
+    -------
+    dict
+        {
+            "model": statsmodels LogitResults,
+            "dataframe": pd.DataFrame,
+            "class_balance": float
+        }
+    """
+    loaded = load_multi_similarity_and_cross_results(similarity_filepaths, cross_results_dir)
+    df = loaded["merged_df"].copy()
+
+    predictor_cols = list(similarity_filepaths.keys())
+    if include_original_score:
+        predictor_cols.append("original_score")
+
+    work_df = df[["cross_score"] + predictor_cols].copy()
+    work_df = work_df.apply(pd.to_numeric, errors="coerce").dropna()
+
+    work_df["good_transfer"] = (work_df["cross_score"] > good_transfer_threshold).astype(int)
+
+    X = work_df[predictor_cols].copy()
+    if standardize_predictors:
+        for col in X.columns:
+            col_std = X[col].std(ddof=0)
+            if col_std > 0:
+                X[col] = (X[col] - X[col].mean()) / col_std
+            else:
+                X[col] = 0.0
+
+    X = sm.add_constant(X)
+    y = work_df["good_transfer"]
+
+    # suppress common convergence chatter; user can inspect summary afterward
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        model = sm.Logit(y, X).fit(disp=False, maxiter=200)
+
+    return {
+        "model": model,
+        "dataframe": work_df,
+        "class_balance": float(y.mean())
+    }
+
+
+def summarize_target_dataset_difficulty(cross_results_dir, strong_transfer_threshold=0.1):
+    """
+    Summarize how 'difficult' each target dataset is as a transfer destination.
+
+    Parameters
+    ----------
+    cross_results_dir : str
+        GitHub API directory URL
+    strong_transfer_threshold : float, default=0.1
+        Threshold for strong incoming transfer.
+
+    Returns
+    -------
+    pd.DataFrame
+        Indexed by target dataset with columns such as:
+        - incoming_mean_cross_score
+        - incoming_median_cross_score
+        - incoming_std_cross_score
+        - incoming_min_cross_score
+        - incoming_transfer_rate
+        - incoming_strong_transfer_rate
+        - n_sources
+    """
+    cross_df = load_cross_results_with_original_scores(cross_results_dir)
+
+    if cross_df.empty:
+        return pd.DataFrame()
+
+    df = cross_df.copy()
+    df["incoming_positive_transfer"] = (df["cross_score"] > 0).astype(int)
+    df["incoming_strong_transfer"] = (df["cross_score"] > strong_transfer_threshold).astype(int)
+
+    grouped = df.groupby("target")
+
+    out = grouped.agg(
+        incoming_mean_cross_score=("cross_score", "mean"),
+        incoming_median_cross_score=("cross_score", "median"),
+        incoming_std_cross_score=("cross_score", "std"),
+        incoming_min_cross_score=("cross_score", "min"),
+        incoming_max_cross_score=("cross_score", "max"),
+        incoming_transfer_rate=("incoming_positive_transfer", "mean"),
+        incoming_strong_transfer_rate=("incoming_strong_transfer", "mean"),
+        n_sources=("source", "count")
+    ).reset_index()
+
+    out["incoming_std_cross_score"] = out["incoming_std_cross_score"].fillna(0.0)
+
+    # easier datasets at the top
+    return out.sort_values(
+        ["incoming_mean_cross_score", "incoming_transfer_rate"],
+        ascending=False
+    )
+
+
+def correlate_target_difficulty_with_dataset_metrics(target_metrics_df, target_difficulty_df, method="spearman"):
+    """
+    Correlate target-dataset difficulty summaries with dataset-level complexity metrics.
+
+    Parameters
+    ----------
+    target_metrics_df : pd.DataFrame
+        Dataset-level metrics indexed by dataset name.
+        Example columns:
+            edge_density, texture_features, hist_entropy, fourier_frequency, num_superpixels
+    target_difficulty_df : pd.DataFrame
+        Output of summarize_target_dataset_difficulty(...)
+    method : str, default='spearman'
+        'pearson' or 'spearman'
+
+    Returns
+    -------
+    pd.DataFrame
+        Long-format correlation table with columns:
+            difficulty_metric, dataset_metric, correlation, p_value, n
+    """
+    if target_metrics_df is None or target_metrics_df.empty:
+        raise ValueError("target_metrics_df is empty.")
+
+    if target_difficulty_df is None or target_difficulty_df.empty:
+        raise ValueError("target_difficulty_df is empty.")
+
+    metrics_df = target_metrics_df.copy()
+    metrics_df.index = metrics_df.index.astype(str).str.strip()
+
+    difficulty_df = target_difficulty_df.copy()
+    difficulty_df["target"] = difficulty_df["target"].astype(str).str.strip()
+
+    merged = difficulty_df.merge(
+        metrics_df,
+        left_on="target",
+        right_index=True,
+        how="inner"
+    )
+
+    difficulty_cols = [
+        "incoming_mean_cross_score",
+        "incoming_median_cross_score",
+        "incoming_std_cross_score",
+        "incoming_transfer_rate",
+        "incoming_strong_transfer_rate"
+    ]
+    dataset_metric_cols = [c for c in metrics_df.columns]
+
+    rows = []
+
+    for dcol in difficulty_cols:
+        for mcol in dataset_metric_cols:
+            tmp = merged[[dcol, mcol]].apply(pd.to_numeric, errors="coerce").dropna()
+
+            if len(tmp) < 3:
+                corr, p_val = np.nan, np.nan
+            else:
+                if method.lower() == "pearson":
+                    corr, p_val = pearsonr(tmp[dcol], tmp[mcol])
+                else:
+                    corr, p_val = spearmanr(tmp[dcol], tmp[mcol])
+
+            rows.append({
+                "difficulty_metric": dcol,
+                "dataset_metric": mcol,
+                "correlation": corr,
+                "p_value": p_val,
+                "n": len(tmp)
+            })
+
+    return pd.DataFrame(rows).sort_values(
+        ["difficulty_metric", "p_value"],
+        ascending=[True, True]
+    )
+
+
+def perform_pipeline_reuse_multimetric_analysis(
+        similarity_files,
+        cross_results_dir):
+    # 1. Pipeline-level analysis
+    stats = compute_source_transfer_statistics(cross_results_dir)
+    print(stats.head())
+
+    # 2. Single metric OLS
+    single = compare_single_metric_ols(similarity_files, cross_results_dir)
+    print(single["summary_df"])
+
+    # 3. Combined OLS
+    combined = fit_combined_ols_model(similarity_files, cross_results_dir)
+    print(combined["model"].summary())
+
+    # 4. Logistic model
+    logit = fit_transfer_logistic_model(similarity_files, cross_results_dir)
+    print(logit["model"].summary())

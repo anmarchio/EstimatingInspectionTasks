@@ -6,7 +6,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from sklearn.metrics.pairwise import cosine_similarity
-from env_vars import DS_ROOT_PATH, IMG_SIZE, RESULTS_PATH
+from env_vars import DS_ROOT_PATH, IMG_SIZE, RESULTS_PATH, SIMILARITY_DIR
 from experiment_params_data import DATASETS
 from src.data_handling import write_df_to_csv
 from src.models.entropy_metrics import jpeg_complexity, histogram_entropy, texture_features, edge_density, \
@@ -33,7 +33,7 @@ def compute_complexity_metrics():
     dataset_names = list(DATASETS.keys())
     dataset_paths = [v['train'] for k, v in DATASETS.items()]
 
-    target_dir = os.path.join(RESULTS_PATH, "similarity", datetime.now().strftime("%Y%m%d-%H%M%S"))
+    target_dir = os.path.join(SIMILARITY_DIR, datetime.now().strftime("%Y%m%d-%H%M%S"))
     result_paths = []
 
     for i in range(1, len(actions.keys())):

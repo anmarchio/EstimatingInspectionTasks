@@ -1,28 +1,12 @@
 import os
 
-import env_vars
 from env_vars import RESULTS_PATH, SIMILARITY_VALUES_FILE, \
-    GITHUB_CROSS_APPLICATION_RESULTS_MEAN, GITHUB_CROSS_APPLICATION_RESULTS_BEST, WDIR
+    GITHUB_CROSS_APPLICATION_RESULTS_MEAN, GITHUB_CROSS_APPLICATION_RESULTS_BEST, SIMILARITY_DIR
 from src.plotting import plot_similarity_heatmap, show_similarity_results
 from src.similarity import compute_complexity_metrics
 from src.statistical_analysis import compute_correlation_analysis, compute_linear_regression, compute_mann_whitney_u, \
     bayesian_regression, linear_regression_on_multiple_similarity_metrics, perform_pipeline_reuse_multimetric_analysis
-
-
-def print_important_env_vars():
-    print("\nIMPORTANT ENV VARIABLES")
-    print("-" * 50)
-
-    for name, value in vars(env_vars).items():
-        # skip internal stuff and large mapping dicts
-        if name.startswith("__"):
-            continue
-        if name in ["SHORT_TO_LONG_NAME", "LONG_TO_SHORT_NAME"]:
-            continue
-
-        print(f"{name}: {value}")
-
-    print("=" * 50)
+from src.utils import print_important_env_vars, select_dir, select_and_build_similarity_files
 
 
 def show_menu():
@@ -50,131 +34,10 @@ def show_menu():
     return selection
 
 
-def select_dir(results_dir) -> []:
-    try:
-        dirs = [entry for entry in os.listdir(results_dir) if os.path.isdir(os.path.join(results_dir, entry))]
-    except FileNotFoundError:
-        print(f"Empty DIR: {results_dir}.")
-        return []
-
-    print("Found the following directories:")
-    for idx, file in enumerate(dirs):
-        print(f"[{idx}] `{file}`")
-
-    selection_idx = input("Select DIR index: ")
-    try:
-        selection_idx = int(selection_idx)
-        if selection_idx < 0 or selection_idx >= len(dirs):
-            print("Invalid selection.")
-            return []
-
-        chosen_dir = dirs[selection_idx]
-        csv_files = [os.path.join(results_dir, chosen_dir, file)
-                     for file in os.listdir(os.path.join(results_dir, chosen_dir))
-                     if file.endswith(".csv")]
-
-        if not csv_files:
-            print(f"No CSV files found in {results_dir}.")
-            return []
-
-    except ValueError:
-        print("Invalid selection.")
-        return []
-
-    return csv_files
-
-
-def select_similarity_folder(base_similarity_dir):
-    """Listet Unterordner in `base_similarity_dir` (z.B. timestamped folders) auf und lässt den User einen auswählen.
-    Gibt den vollständigen Pfad zum gewählten Ordner zurück oder None, wenn abgebrochen/keine Ordner.
-    """
-    try:
-        entries = [e for e in os.listdir(base_similarity_dir) if os.path.isdir(os.path.join(base_similarity_dir, e))]
-    except Exception as e:
-        print(f"Could not list similarity folders in {base_similarity_dir}: {e}")
-        return None
-
-    if not entries:
-        print(f"No similarity subfolders found in {base_similarity_dir}.")
-        return None
-
-    print("Found similarity folders:")
-    for idx, name in enumerate(sorted(entries)):
-        print(f"[{idx}] {name}")
-
-    sel = input("Select folder index (or press Enter to cancel): ")
-    if sel.strip() == "":
-        print("Cancelled selection.")
-        return None
-
-    try:
-        sel_idx = int(sel)
-    except ValueError:
-        print("Invalid selection.")
-        return None
-
-    if sel_idx < 0 or sel_idx >= len(entries):
-        print("Selection out of range.")
-        return None
-
-    chosen = sorted(entries)[sel_idx]
-    return os.path.join(base_similarity_dir, chosen)
-
-
-def build_similarity_files_from_dir(similarity_dir):
-    """Scans `similarity_dir` nach CSV-Dateien und bildet ein dict mit erwarteten Tags.
-
-    Erwartete Tags und typische Schlüsselwörter in Dateinamen:
-      - 'cnn': 'resnet', 'cnn'
-      - 'edge': 'edge', 'edgeDen'
-      - 'texture': 'text', 'texture', 'textComp'
-      - 'entropy': 'hist', 'entropy', 'histEnt', 'histogram'
-      - 'frequency': 'four', 'freq', 'frequency', 'fourFreq'
-      - 'superpixel': 'super', 'noOfSup', 'superpixel'
-
-    Gibt ein dict zurück mit gefundenen Pfaden (nur für vorhandene Dateien).
-    """
-    if not os.path.isdir(similarity_dir):
-        print(f"Not a directory: {similarity_dir}")
-        return {}
-
-    files = [f for f in os.listdir(similarity_dir) if f.lower().endswith('.csv')]
-    files_lc = {f.lower(): f for f in files}
-
-    # mapping tag -> list of candidate substrings
-    patterns = {
-        'cnn': ['resnet', 'cnn'],
-        'edge': ['edge', 'edgeden', 'edgedensity', 'edgeden'],
-        'texture': ['text', 'texture', 'textcomp', 'texturecomp'],
-        'entropy': ['hist', 'histent', 'histogram', 'entropy'],
-        'frequency': ['four', 'fourfreq', 'frequency', 'freq'],
-        'superpixel': ['super', 'noofsup', 'superpixel']
-    }
-
-    found = {}
-
-    # try to match each pattern to a filename
-    for tag, keys in patterns.items():
-        match = None
-        for fname_lc, fname in files_lc.items():
-            for key in keys:
-                if key in fname_lc:
-                    match = fname
-                    break
-            if match:
-                break
-        if match:
-            found[tag] = os.path.join(similarity_dir, match)
-
-    # If some expected tags are missing, also try heuristic: if a file contains 'resnet' but tag 'cnn' missing etc.
-    if not found:
-        print(f"No matching similarity files found in {similarity_dir}.")
-    else:
-        print("Found similarity files:")
-        for k, v in found.items():
-            print(f"  {k}: {v}")
-
-    return found
+def print_capital_separator(label):
+    print("\n" + "=" * 80)
+    print("\033[1;33m" + f"{'  >>> FOR ' + label + ' <<<  ':^80}" + "\033[0m")
+    print("=" * 80)
 
 
 def main():
@@ -192,7 +55,7 @@ def main():
         if selection == 2:
             print("[2] Show similarity results ...")
 
-            results_paths = select_dir(os.path.join(RESULTS_PATH, "similarity"))
+            results_paths = select_dir(SIMILARITY_DIR)
 
             if results_paths is None or results_paths == []:
                 continue
@@ -209,14 +72,20 @@ def main():
             print("[3] Performing Spearman Correlation Analysis ...")
             print("-> Computing Spearman correlation (rank-based, non-parametric, robust to non-linear relationships).")
 
+            similarity_files = select_and_build_similarity_files(SIMILARITY_DIR)
+
+            if not similarity_files:
+                continue
+
             for label, target in [
                 ("MEAN MCC", GITHUB_CROSS_APPLICATION_RESULTS_MEAN),
                 ("BEST MCC", GITHUB_CROSS_APPLICATION_RESULTS_BEST),
             ]:
-                print(f"For {label}:")
-                print("-" * 50)
-                compute_correlation_analysis(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
-                                         target)
+                print_capital_separator(label)
+                for key in similarity_files.keys():
+                    print(f"Using similarity file: {similarity_files[key]}")
+                    compute_correlation_analysis(similarity_files[key],
+                                             target)
 
         if selection == 4:
                 # ------------------------------------------------
@@ -226,13 +95,26 @@ def main():
                 print("[4] Linear Regression on CNN Similarity ...")
                 print("-> Fitting a simple regression model to quantify how much similarity affects performance.")
 
+                similarity_files = select_and_build_similarity_files(SIMILARITY_DIR)
+
+                if not similarity_files:
+                    continue
+
+                for file in similarity_files:
+                    print("Only use CNN embeddings ...")
+                    if "cnn" in file or "resnet" in file or "embedding" in file:
+                        continue
+                    else:
+                        similarity_files.remove(file)
+
                 for label, target in [
                     ("MEAN MCC", GITHUB_CROSS_APPLICATION_RESULTS_MEAN),
                     ("BEST MCC", GITHUB_CROSS_APPLICATION_RESULTS_BEST),
                 ]:
-                    print(f"For {label}:")
-                    print("-" * 50)
-                    compute_linear_regression(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE), target)
+                    print_capital_separator(label)
+                    for key in similarity_files.keys():
+                        print(f"Using similarity file: {similarity_files[key]}")
+                        compute_linear_regression(similarity_files[key], target)
 
         if selection == 5:
             # -------------------------------------------------
@@ -242,13 +124,19 @@ def main():
             print("[5] Performing Mann-Whitney U Test ...")
             print("-> Testing if high-similarity datasets lead to significantly better performance.")
 
+            similarity_files = select_and_build_similarity_files(SIMILARITY_DIR)
+
+            if not similarity_files:
+                continue
+
             for label, target in [
                 ("MEAN MCC", GITHUB_CROSS_APPLICATION_RESULTS_MEAN),
                 ("BEST MCC", GITHUB_CROSS_APPLICATION_RESULTS_BEST),
             ]:
-                print(f"For {label}:")
-                print("-" * 50)
-                compute_mann_whitney_u(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE), target)
+                print_capital_separator(label)
+                for key in similarity_files.keys():
+                    print(f"Using similarity file: {similarity_files[key]}")
+                    compute_mann_whitney_u(similarity_files[key], target)
 
         if selection == 6:
             # -------------------------------------------------
@@ -259,14 +147,19 @@ def main():
             print("-> Fitting a Bayesian linear regression model to estimate the probability distribution of the effect "
                   "of similarity on performance, providing uncertainty estimates.")
 
+            similarity_files = select_and_build_similarity_files(SIMILARITY_DIR)
+
+            if not similarity_files:
+                continue
+
             for label, target in [
                 ("MEAN MCC", GITHUB_CROSS_APPLICATION_RESULTS_MEAN),
                 ("BEST MCC", GITHUB_CROSS_APPLICATION_RESULTS_BEST),
             ]:
-                print(f"For {label}:")
-                print("-" * 50)
-                bayesian_regression(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
-                                    target)
+                print_capital_separator(label)
+                for key in similarity_files.keys():
+                    print(f"Using similarity file: {similarity_files[key]}")
+                    bayesian_regression(similarity_files[key], target)
 
         if selection == 7:
             # Insight analysis:
@@ -274,43 +167,39 @@ def main():
             # strong_transfer_rate (>0.1)).
             # Filter pipelines with transfer_rate > 0.5
             # and rank by mean_cross_score (or by a combined score).
-            print("[7] Linear Regresssion on Multiple Similarity Metrics ...")
+            print("[7] Linear Regression on Multiple Similarity Metrics ...")
             print("-> Fitting a linear regression model with multiple metrics (mean/median cross_score, "
-                  "transfer_rate) and statisticial metrics.")
+                  "transfer_rate) and statistical metrics.")
+
+            similarity_files = select_and_build_similarity_files(SIMILARITY_DIR)
+
+            if not similarity_files:
+                continue
 
             for label, target in [
                 ("MEAN MCC", GITHUB_CROSS_APPLICATION_RESULTS_MEAN),
                 ("BEST MCC", GITHUB_CROSS_APPLICATION_RESULTS_BEST),
             ]:
-                print(f"For {label}:")
-                print("-" * 50)
-                linear_regression_on_multiple_similarity_metrics(os.path.join(RESULTS_PATH, SIMILARITY_VALUES_FILE),
-                                                                 target)
+                print_capital_separator(label)
+                for key in similarity_files.keys():
+                    print(f"Using similarity file: {similarity_files[key]}")
+                    linear_regression_on_multiple_similarity_metrics(similarity_files[key],
+                                                                    target)
 
         if selection == 8:
             print("[8] Pipeline Resuse & Multi-metric Analysis ...")
             print("-> Performing pipeline resuse and multi-metric analysis.")
 
-
-            # Let user pick which timestamped similarity folder to use
-            base_similarity_dir = os.path.join(WDIR, "results", "similarity")
-            chosen_folder = select_similarity_folder(base_similarity_dir)
-            if chosen_folder is None:
-                print("No similarity folder selected. Returning to menu.")
-                continue
-
-            similarity_files = build_similarity_files_from_dir(chosen_folder)
+            similarity_files = select_and_build_similarity_files(SIMILARITY_DIR)
 
             if not similarity_files:
-                print("No similarity files found in the selected folder. Returning to menu.")
                 continue
 
             for label, target in [
                 ("MEAN MCC", GITHUB_CROSS_APPLICATION_RESULTS_MEAN),
                 ("BEST MCC", GITHUB_CROSS_APPLICATION_RESULTS_BEST),
             ]:
-                print(f"For {label}:")
-                print("-" * 50)
+                print_capital_separator(label)
                 perform_pipeline_reuse_multimetric_analysis(similarity_files, target)
 
         if selection > 8:

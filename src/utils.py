@@ -5,6 +5,8 @@ from random import random
 
 import pandas as pd
 
+import env_vars
+
 
 def replace_ambigous_title(title_str: str):
     title_str = title_str.replace('_training', '')
@@ -64,6 +66,135 @@ def log_message(function: str, dataset: str, msg: str):
         logfile.write(log_entry)
 
 
+# ---------- MAIN HELPER FUNCTIONS ----------
+
+def select_dir(results_dir) -> []:
+    try:
+        dirs = [entry for entry in os.listdir(results_dir) if os.path.isdir(os.path.join(results_dir, entry))]
+    except FileNotFoundError:
+        print(f"Empty DIR: {results_dir}.")
+        return []
+
+    print("Found the following directories:")
+    for idx, file in enumerate(dirs):
+        print(f"[{idx}] `{file}`")
+
+    selection_idx = input("Select DIR index: ")
+    try:
+        selection_idx = int(selection_idx)
+        if selection_idx < 0 or selection_idx >= len(dirs):
+            print("Invalid selection.")
+            return []
+
+        chosen_dir = dirs[selection_idx]
+        csv_files = [os.path.join(results_dir, chosen_dir, file)
+                     for file in os.listdir(os.path.join(results_dir, chosen_dir))
+                     if file.endswith(".csv")]
+
+        if not csv_files:
+            print(f"No CSV files found in {results_dir}.")
+            return []
+
+    except ValueError:
+        print("Invalid selection.")
+        return []
+
+    return csv_files
+
+
+def select_similarity_folder(base_similarity_dir):
+    """Listet Unterordner in `base_similarity_dir` (z.B. timestamped folders) auf und lässt den User einen auswählen.
+    Gibt den vollständigen Pfad zum gewählten Ordner zurück oder None, wenn abgebrochen/keine Ordner.
+    """
+    try:
+        entries = [e for e in os.listdir(base_similarity_dir) if os.path.isdir(os.path.join(base_similarity_dir, e))]
+    except Exception as e:
+        print(f"Could not list similarity folders in {base_similarity_dir}: {e}")
+        return None
+
+    if not entries:
+        print(f"No similarity subfolders found in {base_similarity_dir}.")
+        return None
+
+    print("Found similarity folders:")
+    for idx, name in enumerate(sorted(entries)):
+        print(f"[{idx}] {name}")
+
+    sel = input("Select folder index (or press Enter to cancel): ")
+    if sel.strip() == "":
+        print("Cancelled selection.")
+        return None
+
+    try:
+        sel_idx = int(sel)
+    except ValueError:
+        print("Invalid selection.")
+        return None
+
+    if sel_idx < 0 or sel_idx >= len(entries):
+        print("Selection out of range.")
+        return None
+
+    chosen = sorted(entries)[sel_idx]
+    return os.path.join(base_similarity_dir, chosen)
+
+
+def build_similarity_files_from_dir(similarity_dir):
+    """Scans `similarity_dir` nach CSV-Dateien und bildet ein dict mit erwarteten Tags.
+
+    Erwartete Tags und typische Schlüsselwörter in Dateinamen:
+      - 'cnn': 'resnet', 'cnn'
+      - 'edge': 'edge', 'edgeDen'
+      - 'texture': 'text', 'texture', 'textComp'
+      - 'entropy': 'hist', 'entropy', 'histEnt', 'histogram'
+      - 'frequency': 'four', 'freq', 'frequency', 'fourFreq'
+      - 'superpixel': 'super', 'noOfSup', 'superpixel'
+
+    Gibt ein dict zurück mit gefundenen Pfaden (nur für vorhandene Dateien).
+    """
+    if not os.path.isdir(similarity_dir):
+        print(f"Not a directory: {similarity_dir}")
+        return {}
+
+    files = [f for f in os.listdir(similarity_dir) if f.lower().endswith('.csv')]
+    files_lc = {f.lower(): f for f in files}
+
+    # mapping tag -> list of candidate substrings
+    patterns = {
+        'cnn': ['resnet', 'cnn'],
+        'edge': ['edge', 'edgeden', 'edgedensity', 'edgeden'],
+        'texture': ['text', 'texture', 'textcomp', 'texturecomp'],
+        'entropy': ['hist', 'histent', 'histogram', 'entropy'],
+        'frequency': ['four', 'fourfreq', 'frequency', 'freq'],
+        'superpixel': ['super', 'noofsup', 'superpixel']
+    }
+
+    found = {}
+
+    # try to match each pattern to a filename
+    for tag, keys in patterns.items():
+        match = None
+        for fname_lc, fname in files_lc.items():
+            for key in keys:
+                if key in fname_lc:
+                    match = fname
+                    break
+            if match:
+                break
+        if match:
+            found[tag] = os.path.join(similarity_dir, match)
+
+    # If some expected tags are missing, also try heuristic: if a file contains 'resnet' but tag 'cnn' missing etc.
+    if not found:
+        print(f"No matching similarity files found in {similarity_dir}.")
+    else:
+        print("Found similarity files:")
+        for k, v in found.items():
+            print(f"  {k}: {v}")
+
+    return found
+
+
 def print_similarity_matrix(file_path):
     """Reads the similarity matrix from a CSV file and prints it."""
     try:
@@ -86,3 +217,33 @@ def print_similarity_matrix(file_path):
         row = f"{name[:5]} " + "  ".join([f"{similarity_matrix[i, j]:.2f}" for j in range(len(dataset_names))])
         print(row)
     print("File: " + file_path)
+
+
+def print_important_env_vars():
+    print("\nIMPORTANT ENV VARIABLES")
+    print("-" * 50)
+
+    for name, value in vars(env_vars).items():
+        # skip internal stuff and large mapping dicts
+        if name.startswith("__"):
+            continue
+        if name in ["SHORT_TO_LONG_NAME", "LONG_TO_SHORT_NAME"]:
+            continue
+
+        print(f"{name}: {value}")
+
+    print("=" * 50)
+
+
+def select_and_build_similarity_files(base_similarity_dir):
+    chosen = select_similarity_folder(base_similarity_dir)
+    if chosen is None:
+        print("No similarity folder selected. Returning to menu.")
+        return None
+
+    similarity_files = build_similarity_files_from_dir(chosen)
+    if not similarity_files:
+        print("No similarity files found in the selected folder. Returning to menu.")
+        return None
+
+    return similarity_files

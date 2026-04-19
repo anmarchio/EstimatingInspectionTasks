@@ -8,6 +8,7 @@ WDIR = os.path.join("D:\\", "dev", "EstimatingInspectionTasks")
 DS_ROOT_PATH = os.path.join("D:\\", "evias_expmts")
 
 RESULTS_PATH = os.path.join(WDIR, "results")
+SIMILARITY_DIR = os.path.join(RESULTS_PATH, "similarity")
 
 GITHUB_CROSS_APPLICATION_RESULTS_MEAN = ("https://api.github.com/repos/anmarchio/experiments/contents/test/"
                                     "cross_application/manual_hdev/mean")
@@ -15,7 +16,7 @@ GITHUB_CROSS_APPLICATION_RESULTS_MEAN = ("https://api.github.com/repos/anmarchio
 GITHUB_CROSS_APPLICATION_RESULTS_BEST = ("https://api.github.com/repos/anmarchio/experiments/contents/test/"
                                     "cross_application/manual_hdev/best")
 
-SIMILARITY_VALUES_FILE = "results-20250803.csv"
+SIMILARITY_VALUES_FILE = "20250803_resnet_embedding.csv"
 #SIMILARITY_VALUES_FILE = "results-20260115.csv"
 
 # General Image Parameters

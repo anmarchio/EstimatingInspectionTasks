@@ -61,7 +61,7 @@ def show_menu():
 
     # Full Analysis Section
     print(f"{YELLOW}{BOLD}FULL ANALYSIS{RESET}")
-    print("[9] Run [7] & [8] For full analysis")
+    print("[9] Run [3] & [7] & [8] For full analysis")
 
     print("-" * 50)
 

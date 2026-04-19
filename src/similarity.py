@@ -126,8 +126,7 @@ def compute_similarity(choice, target_dir, dataset_names, dataset_paths):
         emb = None
 
         if choice == 1:
-            print("Skipping ResNet embedding for ", path)
-            #emb = resnet_embedding(full_path)
+            emb = resnet_embedding(full_path)
         elif choice == 2:
             emb = jpeg_complexity(full_path)
         elif choice == 3:

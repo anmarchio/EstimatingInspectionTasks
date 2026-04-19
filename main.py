@@ -9,26 +9,79 @@ from src.statistical_analysis import compute_correlation_analysis, compute_linea
 from src.utils import print_important_env_vars, select_dir, select_and_build_similarity_files
 
 
+def show_help():
+    print("\nHELP: Overview of available commands")
+    print("-" * 50)
+    print("h : Show help")
+    print("0 : Exit")
+    print("1 : Compute similarities")
+    print("2 : Display similarity plots")
+    print("3 : Spearman correlation")
+    print("4 : Linear regression (CNN similarity)")
+    print("5 : Mann-Whitney U test")
+    print("6 : Bayesian regression")
+    print("7 : Regression with multiple similarity metrics")
+    print("8 : Pipeline reuse & multi-metric analysis")
+    print("9 : Full analysis (7 & 8)")
+    print("-" * 50)
+    input("Press Enter to return to the menu...")
+
+
 def show_menu():
     print_important_env_vars()
+
+    # ANSI colors
+    RED = "\033[91m"
+    GREEN = "\033[92m"
+    BLUE = "\033[94m"
+    YELLOW = "\033[93m"
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+
     print("STUDY: Retrieval of Pipelines by Similarity")
-    print("" + "=" * 50)
-    print("[0] EXIT")
-    print("[1] Compute similarity between datasets")
-    print("[2] Show similarity results")
+    print("=" * 50)
+
+    # Help + Exit
+    print("[h] Help")
+    print(f"{RED}[0] EXIT{RESET}")
+
+    print("-" * 50)
+
+    # Preparation Section
+    print(f"{BLUE}{BOLD}PREPARATION{RESET}")
+    print("[1] Compute similarity")
+    print("[2] Show similarity plots")
+
+    print("-" * 50)
+
+    # Single Insights Section
+    print(f"{GREEN}{BOLD}SINGLE INSIGHTS{RESET}")
     print("[3] Spearman Correlation")
     print("[4] Linear Regression with CNN Similarity")
     print("[5] Mann-Whitney-U Test (less relevant)")
     print("[6] Bayesian Linear Regression (not analyzed)")
-    print("[7] Linear Regresssion on Multiple Similarity Metrics")
-    print("[8] Pipeline Resuse & Multi-metric Analysis")
-    print("" + "-" * 50)
+    print("[7] Linear Regression on Multiple Similarity Metrics")
+    print("[8] Pipeline Reuse & Multi-metric Analysis")
+
+    print("-" * 50)
+
+    # Full Analysis Section
+    print(f"{YELLOW}{BOLD}FULL ANALYSIS{RESET}")
+    print("[9] Run [7] & [8] For full analysis")
+
+    print("-" * 50)
+
     selection = input("Go to: ")
+
+    # Handle help separately
+    if selection.lower() == 'h':
+        show_help()  # <-- make sure this function exists
+        return -1
 
     try:
         selection = int(selection)
     except ValueError:
-        print("Invalid selection. Please enter a number.")
+        print("Invalid selection. Please enter a number or 'h'.")
         return -1
 
     return selection
@@ -85,36 +138,36 @@ def main():
                 for key in similarity_files.keys():
                     print(f"Using similarity file: {similarity_files[key]}")
                     compute_correlation_analysis(similarity_files[key],
-                                             target)
+                                                 target)
 
         if selection == 4:
-                # ------------------------------------------------
-                # Linear Regression on CNN Similarity:
-                # Fit a simple regression model to quantify how much CNN similarity affects performance
-                # ------------------------------------------------
-                print("[4] Linear Regression on CNN Similarity ...")
-                print("-> Fitting a simple regression model to quantify how much similarity affects performance.")
+            # ------------------------------------------------
+            # Linear Regression on CNN Similarity:
+            # Fit a simple regression model to quantify how much CNN similarity affects performance
+            # ------------------------------------------------
+            print("[4] Linear Regression on CNN Similarity ...")
+            print("-> Fitting a simple regression model to quantify how much similarity affects performance.")
 
-                similarity_files = select_and_build_similarity_files(SIMILARITY_DIR)
+            similarity_files = select_and_build_similarity_files(SIMILARITY_DIR)
 
-                if not similarity_files:
+            if not similarity_files:
+                continue
+
+            for file in similarity_files:
+                print("Only use CNN embeddings ...")
+                if "cnn" in file or "resnet" in file or "embedding" in file:
                     continue
+                else:
+                    similarity_files.remove(file)
 
-                for file in similarity_files:
-                    print("Only use CNN embeddings ...")
-                    if "cnn" in file or "resnet" in file or "embedding" in file:
-                        continue
-                    else:
-                        similarity_files.remove(file)
-
-                for label, target in [
-                    ("MEAN MCC", GITHUB_CROSS_APPLICATION_RESULTS_MEAN),
-                    ("BEST MCC", GITHUB_CROSS_APPLICATION_RESULTS_BEST),
-                ]:
-                    print_capital_separator(label)
-                    for key in similarity_files.keys():
-                        print(f"Using similarity file: {similarity_files[key]}")
-                        compute_linear_regression(similarity_files[key], target)
+            for label, target in [
+                ("MEAN MCC", GITHUB_CROSS_APPLICATION_RESULTS_MEAN),
+                ("BEST MCC", GITHUB_CROSS_APPLICATION_RESULTS_BEST),
+            ]:
+                print_capital_separator(label)
+                for key in similarity_files.keys():
+                    print(f"Using similarity file: {similarity_files[key]}")
+                    compute_linear_regression(similarity_files[key], target)
 
         if selection == 5:
             # -------------------------------------------------
@@ -144,8 +197,9 @@ def main():
             # Fit a Bayesian linear regression model to estimate the probability distribution of the effect of similarity on performance, providing uncertainty estimates.
             # -------------------------------------------------
             print("[6] Performing Bayesian Linear Regression Analysis ...")
-            print("-> Fitting a Bayesian linear regression model to estimate the probability distribution of the effect "
-                  "of similarity on performance, providing uncertainty estimates.")
+            print(
+                "-> Fitting a Bayesian linear regression model to estimate the probability distribution of the effect "
+                "of similarity on performance, providing uncertainty estimates.")
 
             similarity_files = select_and_build_similarity_files(SIMILARITY_DIR)
 
@@ -184,7 +238,7 @@ def main():
                 for key in similarity_files.keys():
                     print(f"Using similarity file: {similarity_files[key]}")
                     linear_regression_on_multiple_similarity_metrics(similarity_files[key],
-                                                                    target)
+                                                                     target)
 
         if selection == 8:
             print("[8] Pipeline Resuse & Multi-metric Analysis ...")

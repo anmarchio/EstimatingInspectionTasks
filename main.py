@@ -45,14 +45,10 @@ def show_menu():
     print("[h] Help")
     print(f"{RED}[0] EXIT{RESET}")
 
-    print("-" * 50)
-
     # Preparation Section
     print(f"{BLUE}{BOLD}PREPARATION{RESET}")
     print("[1] Compute similarity")
     print("[2] Show similarity plots")
-
-    print("-" * 50)
 
     # Single Insights Section
     print(f"{GREEN}{BOLD}SINGLE INSIGHTS{RESET}")
@@ -62,8 +58,6 @@ def show_menu():
     print("[6] Bayesian Linear Regression (not analyzed)")
     print("[7] Linear Regression on Multiple Similarity Metrics")
     print("[8] Pipeline Reuse & Multi-metric Analysis")
-
-    print("-" * 50)
 
     # Full Analysis Section
     print(f"{YELLOW}{BOLD}FULL ANALYSIS{RESET}")

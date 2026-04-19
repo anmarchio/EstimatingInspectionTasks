@@ -331,57 +331,60 @@ def compute_correlation_analysis(similarity_filepath, cross_results_dir):
     """
     _, correlation_df = load_and_prepare_similarity_and_cross_results(similarity_filepath, cross_results_dir)
 
-    # --- Step 5: Compute correlations
-    pearson_corr, pearson_p = pearsonr(correlation_df["similarity"], correlation_df["cross_score"])
-    spearman_corr, spearman_p = spearmanr(correlation_df["similarity"], correlation_df["cross_score"])
+    try:
+        # --- Step 5: Compute correlations
+        pearson_corr, pearson_p = pearsonr(correlation_df["similarity"], correlation_df["cross_score"])
+        spearman_corr, spearman_p = spearmanr(correlation_df["similarity"], correlation_df["cross_score"])
 
-    print("✅ Pearson correlation:", pearson_corr, " (p =", pearson_p, ")")
-    print("✅ Spearman correlation:", spearman_corr, " (p =", spearman_p, ")")
+        print("✅ Pearson correlation:", pearson_corr, " (p =", pearson_p, ")")
+        print("✅ Spearman correlation:", spearman_corr, " (p =", spearman_p, ")")
 
-    # --- Step 6: Compute correlations for different similarity ranges
-    low_similarity = correlation_df[correlation_df["similarity"] < 0.5]
-    medium_similarity = correlation_df[(correlation_df["similarity"] >= 0.5) & (correlation_df["similarity"] < 0.7)]
-    high_similarity = correlation_df[correlation_df["similarity"] >= 0.7]
+        # --- Step 6: Compute correlations for different similarity ranges
+        low_similarity = correlation_df[correlation_df["similarity"] < 0.5]
+        medium_similarity = correlation_df[(correlation_df["similarity"] >= 0.5) & (correlation_df["similarity"] < 0.7)]
+        high_similarity = correlation_df[correlation_df["similarity"] >= 0.7]
 
-    # Low similarity
-    low_pearson_corr, low_pearson_p = pearsonr(low_similarity["similarity"], low_similarity["cross_score"])
-    low_spearman_corr, low_spearman_p = spearmanr(low_similarity["similarity"], low_similarity["cross_score"])
-    print("✅ Low Similarity - Pearson correlation:", low_pearson_corr, " (p =", low_pearson_p, ")")
-    print("✅ Low Similarity - Spearman correlation:", low_spearman_corr, " (p =", low_spearman_p, ")")
+        # Low similarity
+        low_pearson_corr, low_pearson_p = pearsonr(low_similarity["similarity"], low_similarity["cross_score"])
+        low_spearman_corr, low_spearman_p = spearmanr(low_similarity["similarity"], low_similarity["cross_score"])
+        print("✅ Low Similarity - Pearson correlation:", low_pearson_corr, " (p =", low_pearson_p, ")")
+        print("✅ Low Similarity - Spearman correlation:", low_spearman_corr, " (p =", low_spearman_p, ")")
 
-    # Medium similarity
-    medium_pearson_corr, medium_pearson_p = pearsonr(medium_similarity["similarity"], medium_similarity["cross_score"])
-    medium_spearman_corr, medium_spearman_p = spearmanr(medium_similarity["similarity"],
-                                                        medium_similarity["cross_score"])
-    print("✅ Medium Similarity - Pearson correlation:", medium_pearson_corr, " (p =", medium_pearson_p, ")")
-    print("✅ Medium Similarity - Spearman correlation:", medium_spearman_corr, " (p =", medium_spearman_p, ")")
+        # Medium similarity
+        medium_pearson_corr, medium_pearson_p = pearsonr(medium_similarity["similarity"], medium_similarity["cross_score"])
+        medium_spearman_corr, medium_spearman_p = spearmanr(medium_similarity["similarity"],
+                                                            medium_similarity["cross_score"])
+        print("✅ Medium Similarity - Pearson correlation:", medium_pearson_corr, " (p =", medium_pearson_p, ")")
+        print("✅ Medium Similarity - Spearman correlation:", medium_spearman_corr, " (p =", medium_spearman_p, ")")
 
-    # High similarity
-    high_pearson_corr, high_pearson_p = pearsonr(high_similarity["similarity"], high_similarity["cross_score"])
-    high_spearman_corr, high_spearman_p = spearmanr(high_similarity["similarity"], high_similarity["cross_score"])
-    print("✅ High Similarity - Pearson correlation:", high_pearson_corr, " (p =", high_pearson_p, ")")
-    print("✅ High Similarity - Spearman correlation:", high_spearman_corr, " (p =", high_spearman_p, ")")
+        # High similarity
+        high_pearson_corr, high_pearson_p = pearsonr(high_similarity["similarity"], high_similarity["cross_score"])
+        high_spearman_corr, high_spearman_p = spearmanr(high_similarity["similarity"], high_similarity["cross_score"])
+        print("✅ High Similarity - Pearson correlation:", high_pearson_corr, " (p =", high_pearson_p, ")")
+        print("✅ High Similarity - Spearman correlation:", high_spearman_corr, " (p =", high_spearman_p, ")")
 
-    # ------------ Analyze Bins of different sizes ----------
-    bin_sizes = [0.2, 0.1]
-    for bin_size in bin_sizes:
-        print(f"\n--- Analysis for Bin Size: {bin_size} ---")
-        bins = np.arange(0, 1.1, bin_size)
-        correlation_df['bin'] = pd.cut(correlation_df['similarity'], bins, include_lowest=True)
+        # ------------ Analyze Bins of different sizes ----------
+        bin_sizes = [0.2, 0.1]
+        for bin_size in bin_sizes:
+            print(f"\n--- Analysis for Bin Size: {bin_size} ---")
+            bins = np.arange(0, 1.1, bin_size)
+            correlation_df['bin'] = pd.cut(correlation_df['similarity'], bins, include_lowest=True)
 
-        for bin_range, group in correlation_df.groupby('bin'):
-            if len(group) > 1:  # Ensure there are enough data points
-                bin_pearson_corr, bin_pearson_p = pearsonr(group["similarity"], group["cross_score"])
-                bin_spearman_corr, bin_spearman_p = spearmanr(group["similarity"], group["cross_score"])
-                print(f"Bin {bin_range}: Pearson correlation = {bin_pearson_corr:.3f} (p = {bin_pearson_p:.5f}), "
-                      f"Spearman correlation = {bin_spearman_corr:.3f} (p = {bin_spearman_p:.5f})")
+            for bin_range, group in correlation_df.groupby('bin'):
+                if len(group) > 1:  # Ensure there are enough data points
+                    bin_pearson_corr, bin_pearson_p = pearsonr(group["similarity"], group["cross_score"])
+                    bin_spearman_corr, bin_spearman_p = spearmanr(group["similarity"], group["cross_score"])
+                    print(f"Bin {bin_range}: Pearson correlation = {bin_pearson_corr:.3f} (p = {bin_pearson_p:.5f}), "
+                          f"Spearman correlation = {bin_spearman_corr:.3f} (p = {bin_spearman_p:.5f})")
 
-    # ------------ VISUALIZATION ----------
-    sns.regplot(x='similarity', y='cross_score', data=correlation_df, scatter_kws={'alpha': 0.3})
-    plt.title("Similarity vs Pipeline Transfer Performance")
-    plt.xlabel("Cosine Similarity")
-    plt.ylabel("Cross-Application Performance")
-    plt.show()
+        # ------------ VISUALIZATION ----------
+        sns.regplot(x='similarity', y='cross_score', data=correlation_df, scatter_kws={'alpha': 0.3})
+        plt.title("Similarity vs Pipeline Transfer Performance")
+        plt.xlabel("Cosine Similarity")
+        plt.ylabel("Cross-Application Performance")
+        plt.show()
+    except Exception as e:
+        print(f"ERROR during correlation analysis: {e}")
 
 
 def compute_mann_whitney_u(similarity_filepath, cross_results_dir):

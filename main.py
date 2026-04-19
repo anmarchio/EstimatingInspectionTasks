@@ -270,13 +270,14 @@ def main():
                 ("BEST MCC", GITHUB_CROSS_APPLICATION_RESULTS_BEST),
             ]:
                 print_capital_separator(label)
-                print("Spearman correlation ...")
-                compute_correlation_analysis(similarity_files[key],
-                                             target)
+                for key in similarity_files.keys():
+                    print("Spearman correlation ...")
+                    compute_correlation_analysis(similarity_files[key],
+                                                 target)
 
-                print("Linear regression using multiple metrics ...")
-                linear_regression_on_multiple_similarity_metrics(similarity_files[key],
-                                                                 target)
+                    print("Linear regression using multiple metrics ...")
+                    linear_regression_on_multiple_similarity_metrics(similarity_files[key],
+                                                                     target)
                 print("Pipeline reuse & multi-metric analysis ...")
                 perform_pipeline_reuse_multimetric_analysis(similarity_files, target)
         if selection > 9:

@@ -22,7 +22,7 @@ def show_help():
     print("6 : Bayesian regression")
     print("7 : Regression with multiple similarity metrics")
     print("8 : Pipeline reuse & multi-metric analysis")
-    print("9 : Full analysis (7 & 8)")
+    print("9 : Full analysis (3 & 7 & 8)")
     print("-" * 50)
     input("Press Enter to return to the menu...")
 
@@ -256,7 +256,30 @@ def main():
                 print_capital_separator(label)
                 perform_pipeline_reuse_multimetric_analysis(similarity_files, target)
 
-        if selection > 8:
+        if selection == 9:
+            print("[9] Running full analysis (3 & 7 & 8) ...")
+            print("-> Running the full analysis pipeline (3 & 7 & 8) for comprehensive insights.")
+
+            similarity_files = select_and_build_similarity_files(SIMILARITY_DIR)
+
+            if not similarity_files:
+                continue
+
+            for label, target in [
+                ("MEAN MCC", GITHUB_CROSS_APPLICATION_RESULTS_MEAN),
+                ("BEST MCC", GITHUB_CROSS_APPLICATION_RESULTS_BEST),
+            ]:
+                print_capital_separator(label)
+                print("Spearman correlation ...")
+                compute_correlation_analysis(similarity_files[key],
+                                             target)
+
+                print("Linear regression using multiple metrics ...")
+                linear_regression_on_multiple_similarity_metrics(similarity_files[key],
+                                                                 target)
+                print("Pipeline reuse & multi-metric analysis ...")
+                perform_pipeline_reuse_multimetric_analysis(similarity_files, target)
+        if selection > 9:
             print("Invalid selection. Please choose a valid option.")
 
     print("Exiting ....")

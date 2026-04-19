@@ -4,7 +4,7 @@ import env_vars
 from env_vars import RESULTS_PATH, SIMILARITY_VALUES_FILE, \
     GITHUB_CROSS_APPLICATION_RESULTS_MEAN, GITHUB_CROSS_APPLICATION_RESULTS_BEST, WDIR
 from src.plotting import plot_similarity_heatmap, show_similarity_results
-from src.similarity import select_complexity_function
+from src.similarity import compute_complexity_metrics
 from src.statistical_analysis import compute_correlation_analysis, compute_linear_regression, compute_mann_whitney_u, \
     bayesian_regression, linear_regression_on_multiple_similarity_metrics, perform_pipeline_reuse_multimetric_analysis
 
@@ -50,41 +50,38 @@ def show_menu():
     return selection
 
 
-def select_file(results_dir):
+def select_dir(results_dir) -> []:
     try:
-        csv_files = [file for file in os.listdir(results_dir) if file.endswith(".csv")]
+        dirs = [entry for entry in os.listdir(results_dir) if os.path.isdir(os.path.join(results_dir, entry))]
     except FileNotFoundError:
-        print(f"No CSV files found in {results_dir}.")
-        return None
+        print(f"Empty DIR: {results_dir}.")
+        return []
 
-    if not csv_files:
-        print(f"No CSV files found in {results_dir}.")
-        return None
-
-    if len(csv_files) == 1:
-        csv_file = csv_files[0]
-        print(f"Reading similarity results from:\n `{os.path.join(results_dir, csv_file)}`")
-
-        show_similarity_results(os.path.join(results_dir, csv_file))
-        plot_similarity_heatmap(os.path.join(results_dir, csv_file))
-        return None
-
-    print("Found the following CSV files:")
-    for idx, file in enumerate(csv_files):
+    print("Found the following directories:")
+    for idx, file in enumerate(dirs):
         print(f"[{idx}] `{file}`")
 
-    selection_idx = input("Select file index: ")
+    selection_idx = input("Select DIR index: ")
     try:
         selection_idx = int(selection_idx)
-        if selection_idx < 0 or selection_idx >= len(csv_files):
+        if selection_idx < 0 or selection_idx >= len(dirs):
             print("Invalid selection.")
-            return None
+            return []
+
+        chosen_dir = dirs[selection_idx]
+        csv_files = [os.path.join(results_dir, chosen_dir, file)
+                     for file in os.listdir(os.path.join(results_dir, chosen_dir))
+                     if file.endswith(".csv")]
+
+        if not csv_files:
+            print(f"No CSV files found in {results_dir}.")
+            return []
+
     except ValueError:
         print("Invalid selection.")
-        return None
+        return []
 
-    chosen_file = csv_files[selection_idx]
-    return os.path.join(RESULTS_PATH, chosen_file)
+    return csv_files
 
 
 def select_similarity_folder(base_similarity_dir):
@@ -189,22 +186,20 @@ def main():
             running = False
 
         if selection == 1:
-            print("[1] Computing similarity between datasets pairs...")
-            results_paths = compute_complexity_metrics()
-
-            for result_path in results_paths:
-                plot_similarity_heatmap(result_path)
+            print("[1] Computing similarity metrics between datasets pairs...")
+            compute_complexity_metrics()
 
         if selection == 2:
             print("[2] Show similarity results ...")
 
-            chosen_path = select_file(RESULTS_PATH)
+            results_paths = select_dir(os.path.join(RESULTS_PATH, "similarity"))
 
-            if chosen_path is None:
+            if results_paths is None or results_paths == []:
                 continue
 
-            show_similarity_results(chosen_path)
-            plot_similarity_heatmap(chosen_path)
+            for result_path in results_paths:
+                show_similarity_results(result_path)
+                plot_similarity_heatmap(result_path)
 
         if selection == 3:
             # ------------------------------------------------

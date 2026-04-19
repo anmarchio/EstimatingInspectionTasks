@@ -10,7 +10,15 @@ from env_vars import RESULTS_PATH
 from src.data_handling import print_table, read_df
 
 
-def plot_similarity_heatmap(file_path):
+def plot_similarity_heatmap(file_path, plot_title = ""):
+    if plot_title == "":
+        base = os.path.basename(file_path)
+        name = os.path.splitext(base)[0]
+        if "_" in name and name.split("_", 1)[1]:
+            plot_title = name.split("_", 1)[1]
+        else:
+            plot_title = "Similarity Heatmap"
+
     df = pd.read_csv(file_path, index_col=0)
 
     # Drop empty rows/cols
@@ -44,6 +52,7 @@ def plot_similarity_heatmap(file_path):
     sns.heatmap(df, annot=False, cmap="coolwarm", square=True,
                 cbar_kws={"label": "Cosine Similarity"})
     plt.xticks(rotation=0)
+    plt.title(plot_title)
     plt.tight_layout()
     plt.savefig(file_path.replace(".csv", "_heatmap.png"))
     plt.show()

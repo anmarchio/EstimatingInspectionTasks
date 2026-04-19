@@ -24,15 +24,24 @@ def read_df(file_path):
     return similarity_df
 
 
-def write_df_to_csv(df):
-    result_dir = os.path.join(RESULTS_PATH)
+def write_df_to_csv(df, category:str = "", target_dir:str = None):
+    if target_dir is None:
+        target_dir = os.path.join(RESULTS_PATH)
+
+    if category is not "":
+        category = f"_{category}"
+
     current_datetime = datetime.now().strftime("%Y%m%d-%H%M%S")
-    result_file = os.path.join(result_dir, f"results-{current_datetime}.csv")
 
-    if not os.path.exists(result_dir):
-        os.makedirs(result_dir)
+    result_file = os.path.join(
+        target_dir,
+        f"{current_datetime}{category}.csv"
+    )
 
-    csv_string = df.to_csv(result_file, index=True)
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+
+    df.to_csv(result_file, index=True)
 
     return result_file
 

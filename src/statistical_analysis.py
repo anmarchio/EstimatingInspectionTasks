@@ -344,6 +344,15 @@ def interpret_ols(results, predictor_name="similarity", target_name="cross_score
 
     return "\n".join(statements)
 
+def safe_pearson(x, y, label=""):
+    # drop NaNs pairwise
+    df = pd.DataFrame({"x": x, "y": y}).dropna()
+
+    if len(df) < 2:
+        print(f"[SKIP] Not enough data for Pearson ({label}): n={len(df)}")
+        return np.nan, np.nan
+
+    return pearsonr(df["x"], df["y"])
 
 def compute_correlation_analysis(similarity_filepath, cross_results_dir):
     """
@@ -371,20 +380,32 @@ def compute_correlation_analysis(similarity_filepath, cross_results_dir):
         high_similarity = correlation_df[correlation_df["similarity"] >= 0.7]
 
         # Low similarity
-        low_pearson_corr, low_pearson_p = pearsonr(low_similarity["similarity"], low_similarity["cross_score"])
+        low_pearson_corr, low_pearson_p = safe_pearson(
+            low_similarity["similarity"],
+            low_similarity["cross_score"],
+            label="low similarity"
+        )
         low_spearman_corr, low_spearman_p = spearmanr(low_similarity["similarity"], low_similarity["cross_score"])
         print("✅ Low Similarity (s < 0.5)- Pearson correlation:", low_pearson_corr, " (p =", low_pearson_p, ")")
         print("✅ Low Similarity (s < 0.5) - Spearman correlation:", low_spearman_corr, " (p =", low_spearman_p, ")")
 
         # Medium similarity
-        medium_pearson_corr, medium_pearson_p = pearsonr(medium_similarity["similarity"], medium_similarity["cross_score"])
+        medium_pearson_corr, medium_pearson_p = safe_pearson(
+            medium_similarity["similarity"],
+            medium_similarity["cross_score"],
+            label="low similarity"
+        )
         medium_spearman_corr, medium_spearman_p = spearmanr(medium_similarity["similarity"],
                                                             medium_similarity["cross_score"])
         print("✅ Medium Similarity (0.5 <= s < 0.7) - Pearson correlation:", medium_pearson_corr, " (p =", medium_pearson_p, ")")
         print("✅ Medium Similarity (0.5 <= s < 0.7) - Spearman correlation:", medium_spearman_corr, " (p =", medium_spearman_p, ")")
 
         # High similarity
-        high_pearson_corr, high_pearson_p = pearsonr(high_similarity["similarity"], high_similarity["cross_score"])
+        high_pearson_corr, high_pearson_p = safe_pearson(
+            high_similarity["similarity"],
+            high_similarity["cross_score"],
+            label="low similarity"
+        )
         high_spearman_corr, high_spearman_p = spearmanr(high_similarity["similarity"], high_similarity["cross_score"])
         print("✅ High Similarity (0.7 <= s <= 1.0) - Pearson correlation:", high_pearson_corr, " (p =", high_pearson_p, ")")
         print("✅ High Similarity (0.7 <= s <= 1.0) - Spearman correlation:", high_spearman_corr, " (p =", high_spearman_p, ")")
@@ -405,7 +426,11 @@ def compute_correlation_analysis(similarity_filepath, cross_results_dir):
 
         # ------------ VISUALIZATION ----------
         sns.regplot(x='similarity', y='cross_score', data=correlation_df, scatter_kws={'alpha': 0.3})
-        plt.title("Similarity vs Pipeline Transfer Performance")
+        try:
+            sim_label = os.path.split(similarity_filepath)[-1].split('_', 1)[1].replace('.csv', '')
+        except:
+            sim_label = ""
+        plt.title(f"{sim_label} Sim vs Cross Pipeline MCC")
         plt.xlabel("Cosine Similarity")
         plt.ylabel("Cross-Application Performance")
         plt.show()

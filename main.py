@@ -120,8 +120,8 @@ def main():
             # Correlation Analysis:
             # Compute Spearman correlation (rank-based, non-parametric, robust to non-linear relationships)
             # ------------------------------------------------
-            print("[3] Performing Spearman Correlation Analysis ...")
-            print("-> Computing Spearman correlation (rank-based, non-parametric, robust to non-linear relationships).")
+            print("[3] Performing Correlation Analysis ...")
+            print("-> Computing correlation (rank-based, non-parametric, robust to non-linear relationships).")
 
             similarity_files = select_and_build_similarity_files(SIMILARITY_DIR)
 
@@ -279,6 +279,7 @@ def main():
                                                                      target)
                 print("--- PIPELINE REUSE & MULTI-METRIC ANALYSIS ---")
                 perform_pipeline_reuse_multimetric_analysis(similarity_files, target)
+
         if selection > 9:
             print("Invalid selection. Please choose a valid option.")
 

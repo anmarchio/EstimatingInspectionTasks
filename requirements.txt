@@ -20,3 +20,4 @@ statsmodels
 tqdm
 arviz
 pymc
+requests

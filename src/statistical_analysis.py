@@ -1,3 +1,4 @@
+import os.path
 import warnings
 
 import arviz as az
@@ -15,6 +16,7 @@ from skimage.feature import graycomatrix, graycoprops
 from statsmodels.stats.stattools import durbin_watson, jarque_bera, omni_normtest
 
 from env_vars import LONG_TO_SHORT_NAME
+from src.utils import to_short_name, normalize_axis_labels, normalize_name, read_files_from_url_or_folder
 
 
 def extract_image_statistics(image):
@@ -35,13 +37,6 @@ def extract_image_statistics(image):
     entropy = -np.sum(glcm * np.log2(glcm + 1e-10))
 
     return [mean_intensity, std_intensity, edge_density, contrast, entropy]
-
-
-def normalize_name(s):
-    suffixes = ["_mean_pipeline", "_best_pipeline", ".txt"]
-    for suffix in suffixes:
-        s = s.replace(suffix, "")
-    return s.strip()
 
 
 def load_and_prepare_similarity_and_cross_results(similarity_filepath, cross_results_dir):
@@ -69,9 +64,14 @@ def load_and_prepare_similarity_and_cross_results(similarity_filepath, cross_res
     similarity_df.columns = similarity_df.columns.astype(str).str.strip()
     similarity_df.index = similarity_df.index.astype(str).str.strip()
 
+    # Safely Normalize Names to short form
+    similarity_df.index = normalize_axis_labels(similarity_df.index, "index")
+    similarity_df.columns = normalize_axis_labels(similarity_df.columns, "column")
+
     # --- Step 3: Load each result file and collect scores
-    response = requests.get(cross_results_dir)
-    cross_results_files = [item for item in response.json() if item["type"] == "file"]
+    cross_results_files = read_files_from_url_or_folder(cross_results_dir)
+
+    lookup_errors = ""
 
     for file in cross_results_files:
         # src_dataset = normalize_name(fname)
@@ -102,15 +102,38 @@ def load_and_prepare_similarity_and_cross_results(similarity_filepath, cross_res
                 continue
             else:
                 tgt_dataset = normalize_name(row.iloc[2])
-            src_dataset = normalize_name(src_dataset)
+                src_dataset = normalize_name(src_dataset)
+
+            # ----- Check Normalization Error -----
+            src_key = to_short_name(src_dataset)
+            tgt_key = to_short_name(tgt_dataset)
+
+            if src_key is None or tgt_key is None:
+                lookup_errors += (
+                    f"[NAME NORMALIZATION ERROR] "
+                    f"src='{src_dataset}' -> {src_key}, "
+                    f"tgt='{tgt_dataset}' -> {tgt_key}\n"
+                )
+                #continue
+
+            if src_key not in similarity_df.index or tgt_key not in similarity_df.columns:
+                lookup_errors += (
+                    f"[MATRIX LOOKUP ERROR] "
+                    f"src_key='{src_key}' in index={src_key in similarity_df.index}, "
+                    f"tgt_key='{tgt_key}' in columns={tgt_key in similarity_df.columns} | "
+                    f"original src='{src_dataset}', tgt='{tgt_dataset}'\n"
+                )
+                #continue
+            # ----------------------------------
 
             try:
-                similarity = similarity_df.loc[
-                    LONG_TO_SHORT_NAME[src_dataset],
-                    LONG_TO_SHORT_NAME[tgt_dataset]
-                ]
+                #similarity = similarity_df.loc[
+                #    LONG_TO_SHORT_NAME[src_key],
+                #    LONG_TO_SHORT_NAME[tgt_key]
+                #]
+                similarity = similarity_df.loc[src_key, tgt_key]
             except Exception as e:
-                print(f"Skipping pair due to error: {e} in file: {src_dataset} with target: {tgt_dataset}")
+                #print(f"Skipping pair due to error: {e} in file: {src_dataset} with target: {tgt_dataset}")
                 continue
 
             all_rows.append({
@@ -119,6 +142,8 @@ def load_and_prepare_similarity_and_cross_results(similarity_filepath, cross_res
                 "similarity": similarity,
                 "cross_score": float(row.iloc[3])
             })
+
+    print(lookup_errors)
 
     # --- Step 4: Create dataframe for analysis
     correlation_df = pd.DataFrame(all_rows)
@@ -340,6 +365,7 @@ def compute_correlation_analysis(similarity_filepath, cross_results_dir):
         print("✅ Spearman correlation:", spearman_corr, " (p =", spearman_p, ")")
 
         # --- Step 6: Compute correlations for different similarity ranges
+        print("\n--- Analysis for Bin Size: [-1.0;0.5[, [0.5;0.7[, [0.7;1.0]  ---")
         low_similarity = correlation_df[correlation_df["similarity"] < 0.5]
         medium_similarity = correlation_df[(correlation_df["similarity"] >= 0.5) & (correlation_df["similarity"] < 0.7)]
         high_similarity = correlation_df[correlation_df["similarity"] >= 0.7]
@@ -347,21 +373,21 @@ def compute_correlation_analysis(similarity_filepath, cross_results_dir):
         # Low similarity
         low_pearson_corr, low_pearson_p = pearsonr(low_similarity["similarity"], low_similarity["cross_score"])
         low_spearman_corr, low_spearman_p = spearmanr(low_similarity["similarity"], low_similarity["cross_score"])
-        print("✅ Low Similarity - Pearson correlation:", low_pearson_corr, " (p =", low_pearson_p, ")")
-        print("✅ Low Similarity - Spearman correlation:", low_spearman_corr, " (p =", low_spearman_p, ")")
+        print("✅ Low Similarity (s < 0.5)- Pearson correlation:", low_pearson_corr, " (p =", low_pearson_p, ")")
+        print("✅ Low Similarity (s < 0.5) - Spearman correlation:", low_spearman_corr, " (p =", low_spearman_p, ")")
 
         # Medium similarity
         medium_pearson_corr, medium_pearson_p = pearsonr(medium_similarity["similarity"], medium_similarity["cross_score"])
         medium_spearman_corr, medium_spearman_p = spearmanr(medium_similarity["similarity"],
                                                             medium_similarity["cross_score"])
-        print("✅ Medium Similarity - Pearson correlation:", medium_pearson_corr, " (p =", medium_pearson_p, ")")
-        print("✅ Medium Similarity - Spearman correlation:", medium_spearman_corr, " (p =", medium_spearman_p, ")")
+        print("✅ Medium Similarity (0.5 <= s < 0.7) - Pearson correlation:", medium_pearson_corr, " (p =", medium_pearson_p, ")")
+        print("✅ Medium Similarity (0.5 <= s < 0.7) - Spearman correlation:", medium_spearman_corr, " (p =", medium_spearman_p, ")")
 
         # High similarity
         high_pearson_corr, high_pearson_p = pearsonr(high_similarity["similarity"], high_similarity["cross_score"])
         high_spearman_corr, high_spearman_p = spearmanr(high_similarity["similarity"], high_similarity["cross_score"])
-        print("✅ High Similarity - Pearson correlation:", high_pearson_corr, " (p =", high_pearson_p, ")")
-        print("✅ High Similarity - Spearman correlation:", high_spearman_corr, " (p =", high_spearman_p, ")")
+        print("✅ High Similarity (0.7 <= s <= 1.0) - Pearson correlation:", high_pearson_corr, " (p =", high_pearson_p, ")")
+        print("✅ High Similarity (0.7 <= s <= 1.0) - Spearman correlation:", high_spearman_corr, " (p =", high_spearman_p, ")")
 
         # ------------ Analyze Bins of different sizes ----------
         bin_sizes = [0.2, 0.1]
@@ -606,9 +632,7 @@ def load_cross_results_with_original_scores(cross_results_dir):
     """
     all_rows = []
 
-    response = requests.get(cross_results_dir)
-    response.raise_for_status()
-    cross_results_files = [item for item in response.json() if item["type"] == "file"]
+    cross_results_files = read_files_from_url_or_folder(cross_results_dir)
 
     for file in cross_results_files:
         src_dataset = file["name"]

@@ -68,8 +68,8 @@ def print_similarity_distribution(result_path):
 
     # Define thresholds and labels (from low to high)
     thresholds = {
-        'None': (0.0, 0.3),
-        'Low': (0.5, 0.5),
+        'None': (-1.0, 0.3),
+        'Low': (0.3, 0.5),
         'Medium': (0.5, 0.7),
         'High': (0.7, 1.0)
     }
@@ -77,19 +77,21 @@ def print_similarity_distribution(result_path):
     counts = {}
     for label, (low, high) in thresholds.items():
         if label == 'None':
-            mask = np.isclose(vals, 0.0)
+            #mask = np.isclose(vals, 0.0)
+            mask = vals <= 0.3
         else:
             # low exclusive, high inclusive for Low/Medium/High
             mask = (vals > low) & (vals <= high)
         counts[label] = int(mask.sum())
 
     # Print header and ranges
+    print("Distribution for: ", result_path)
     print("| Similarity | Range                | Count | Percentage |")
     for label in ['None', 'Low', 'Medium', 'High']:
         cnt = counts[label]
         pct = (cnt / total * 100) if total > 0 else 0.0
         low, high = thresholds[label]
-        if label == None:
+        if label is None:
             range_str = "None"
         else:
             range_str = f"> {low} and <= {high}"

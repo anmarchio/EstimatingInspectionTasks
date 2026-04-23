@@ -4,8 +4,10 @@ from datetime import datetime
 from random import random
 
 import pandas as pd
+import requests
 
 import env_vars
+from env_vars import SHORT_TO_LONG_NAME, LONG_TO_SHORT_NAME
 
 
 def replace_ambigous_title(title_str: str):
@@ -247,3 +249,55 @@ def select_and_build_similarity_files(base_similarity_dir):
         return None
 
     return similarity_files
+
+
+def read_files_from_url_or_folder(cross_results_dir):
+    cross_results_files = []
+    if "https" in cross_results_dir:
+        response = requests.get(cross_results_dir)
+        cross_results_files = [item for item in response.json() if item["type"] == "file"]
+    else:
+        if os.path.exists(cross_results_dir) == False:
+            print("ERROR: Cross results directory does not exist:", cross_results_dir)
+            return None
+        # List files in local directory
+        cross_results_files = []
+        for fname in os.listdir(cross_results_dir):
+            if fname.endswith(".txt"):
+                cross_results_files.append({
+                    "name": fname,
+                    "download_url": os.path.join(cross_results_dir, fname)
+                })
+    return cross_results_files
+
+# ---------- DATASET NAME NORMALIZATION ----------
+def normalize_name(s):
+    suffixes = ["_mean_pipeline", "_best_pipeline", ".txt"]
+    for suffix in suffixes:
+        s = s.replace(suffix, "")
+    return s.strip()
+
+def to_short_name(name):
+    name = normalize_name(str(name)).strip()
+
+    # already a short name
+    if name in SHORT_TO_LONG_NAME:
+        return name
+
+    # long name -> short name
+    if name in LONG_TO_SHORT_NAME:
+        return LONG_TO_SHORT_NAME[name]
+
+    # unknown name
+    return None
+
+def normalize_axis_labels(labels, axis_name="index"):
+    normalized = []
+    for label in labels:
+        short = to_short_name(label)
+        if short is None:
+            print(f"[UNKNOWN {axis_name.upper()} LABEL] '{label}'")
+            normalized.append(label)  # keep original for debugging
+        else:
+            normalized.append(short)
+    return normalized

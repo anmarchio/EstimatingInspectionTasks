@@ -3,7 +3,7 @@ import os
 from env_vars import RESULTS_PATH, SIMILARITY_VALUES_FILE, \
     GITHUB_CROSS_APPLICATION_RESULTS_MEAN, GITHUB_CROSS_APPLICATION_RESULTS_BEST, SIMILARITY_DIR
 from src.plotting import plot_similarity_heatmap, show_similarity_results
-from src.similarity import compute_complexity_metrics
+from src.similarity import compute_complexity_metrics, print_similarity_distribution
 from src.statistical_analysis import compute_correlation_analysis, compute_linear_regression, compute_mann_whitney_u, \
     bayesian_regression, linear_regression_on_multiple_similarity_metrics, perform_pipeline_reuse_multimetric_analysis
 from src.utils import print_important_env_vars, select_dir, select_and_build_similarity_files
@@ -102,13 +102,17 @@ def main():
         if selection == 2:
             print("[2] Show similarity results ...")
 
+            input("Full matrix view? (y/n): ")
+            full = (input().lower() == 'y')
             results_paths = select_dir(SIMILARITY_DIR)
 
             if results_paths is None or results_paths == []:
                 continue
 
             for result_path in results_paths:
-                show_similarity_results(result_path)
+                if full:
+                    show_similarity_results(result_path)
+                print_similarity_distribution(result_path)
                 plot_similarity_heatmap(result_path)
 
         if selection == 3:
@@ -130,9 +134,10 @@ def main():
             ]:
                 print_capital_separator(label)
                 for key in similarity_files.keys():
-                    print(f"Using similarity file: {similarity_files[key]}")
+                    print(f">>> START analysis for similarity file: {similarity_files[key]}")
                     compute_correlation_analysis(similarity_files[key],
                                                  target)
+                    print(f"<<< END analysis for similarity file: {similarity_files[key]}")
 
         if selection == 4:
             # ------------------------------------------------
@@ -265,14 +270,14 @@ def main():
             ]:
                 print_capital_separator(label)
                 for key in similarity_files.keys():
-                    print("Spearman correlation ...")
+                    print("--- CORRELATION ANALYSIS ---")
                     compute_correlation_analysis(similarity_files[key],
                                                  target)
 
-                    print("Linear regression using multiple metrics ...")
+                    print("--- MULTIPLE METRICS LINEAR REGRESSION ---")
                     linear_regression_on_multiple_similarity_metrics(similarity_files[key],
                                                                      target)
-                print("Pipeline reuse & multi-metric analysis ...")
+                print("--- PIPELINE REUSE & MULTI-METRIC ANALYSIS ---")
                 perform_pipeline_reuse_multimetric_analysis(similarity_files, target)
         if selection > 9:
             print("Invalid selection. Please choose a valid option.")

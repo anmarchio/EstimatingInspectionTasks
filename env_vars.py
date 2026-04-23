@@ -10,11 +10,15 @@ DS_ROOT_PATH = os.path.join("D:\\", "evias_expmts")
 RESULTS_PATH = os.path.join(WDIR, "results")
 SIMILARITY_DIR = os.path.join(RESULTS_PATH, "similarity")
 
-GITHUB_CROSS_APPLICATION_RESULTS_MEAN = ("https://api.github.com/repos/anmarchio/experiments/contents/test/"
-                                    "cross_application/manual_hdev/mean")
+#GITHUB_CROSS_APPLICATION_RESULTS_MEAN = ("https://api.github.com/repos/anmarchio/experiments/contents/test/"
+#                                    "cross_application/manual_hdev/mean")
+GITHUB_CROSS_APPLICATION_RESULTS_MEAN = os.path.join("D:\\", "dev", "experiments","test",
+                                    "cross_application","manual_hdev","mean")
 
-GITHUB_CROSS_APPLICATION_RESULTS_BEST = ("https://api.github.com/repos/anmarchio/experiments/contents/test/"
-                                    "cross_application/manual_hdev/best")
+#GITHUB_CROSS_APPLICATION_RESULTS_BEST = ("https://api.github.com/repos/anmarchio/experiments/contents/test/"
+#                                    "cross_application/manual_hdev/best")
+GITHUB_CROSS_APPLICATION_RESULTS_BEST = os.path.join("D:\\", "dev", "experiments","test",
+                                    "cross_application","manual_hdev","best")
 
 SIMILARITY_VALUES_FILE = "20250803_resnet_embedding.csv"
 #SIMILARITY_VALUES_FILE = "results-20260115.csv"
@@ -60,12 +64,15 @@ SHORT_TO_LONG_NAME = {
     "window_cgp": "Pultrusion_Window",
     "resin_cgp_augmented": "Pultrusion_Resin_Augmtd_mean",
     "severstal": "severstal-steel",
-    "spule-upside-0315": "MAIPreform2_Spule0_0315_Upside_Thread_256",
+    #"spule-upside-0315": "MAIPreform2_Spule0_0315_Upside_Thread_256",
+    "spule-upside-0315":"MAIPreform2_Spule0_0315_Upside",
     "spule-upside-0117": "",
     "spule2-0816_Upside-dl1": "MAIPreform2_Spule0_0816_Upside",
     "spule2-0816_Upside-dl2": "",
     "spule-upside-hole": "MAIPreform2_Spule0_0315_Upside_Thread",
-    "spule-upside-hole256": "MAIPreform2_Spule0_0315_Upside_Thread_256"
+    "spule-upside-hole-reduced": "MAIPreform2_Spule0_0315_Upside_Thread",
+    "spule-upside-hole256": "MAIPreform2_Spule0_0315_Upside_Thread_256",
+    "spule-upside-hole256-reduced": "MAIPreform2_Spule0_0315_Upside_Thread_256"
 }
 
 LONG_TO_SHORT_NAME = {
@@ -76,8 +83,8 @@ LONG_TO_SHORT_NAME = {
     "MT_Blowhole_train": "MT_Blowhole_train",
     "KolektorSSD": "kos10",
     "KollektorSSD": "kos10",
-    "KolektorSSD": "kos25",
-    "KollektorSSD": "kos25",
+    #"KolektorSSD": "kos25",
+    #"KollektorSSD": "kos25",
     "FabricDefectsAITEX": "FabricDefectsAITEX",
     "MVTec_AD_Carpet": "carpet",
     "MVTec_AD_Leather": "leather",
@@ -92,7 +99,7 @@ LONG_TO_SHORT_NAME = {
     "MVTec_AD_Hazelnut_Crack": "hazelnut_crack_train",
     "MVTec_AD_Screw_Scratch": "screw_scratch_neck_train",
     "MVTec_AD_Transistor": "transistor_damaged_case_train",
-    "AirCarbon3_80.jpg_bright": "81.jpg_bright",
+    "AirCarbon3_80.jpg_bright": "80.jpg_bright",
     "AirCarbon3_81.jpg_dark": "81.jpg_dark",
     "AirCarbon3_80.jpg_dark_1": "80.jpg_dark_1",
     "AirCarbon3_80.jpg_dark_2": "80.jpg_dark_2",
@@ -111,8 +118,8 @@ LONG_TO_SHORT_NAME = {
     "MAIPreform2_Spule_0117": "spule-upside-0117",
     "MAIPreform2_Spule0_0816_Upside": "spule2-0816_Upside-dl1",
     "MAIPreform2_Spule2-0816": "spule2-0816_Upside-dl2",
-    "MAIPreform2_Spule0_0315_Upside": "spule-upside-hole",
-    "MAIPreform2_Spule0_0315_Upside_Thread": "spule-upside-hole",
-    "MAIPreform2_Spule0_0315_Upside_Thread_256": "spule-upside-hole256"
+    "MAIPreform2_Spule0_0315_Upside": "spule-upside-0315",
+    "MAIPreform2_Spule0_0315_Upside_Thread": "spule-upside-hole-reduced",
+    "MAIPreform2_Spule0_0315_Upside_Thread_256": "spule-upside-hole256-reduced"
 }
 # "MAIPreform2_Spule0_0315_Upside_Thread_256": "spule-upside-0315",

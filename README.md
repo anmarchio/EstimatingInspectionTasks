@@ -22,15 +22,16 @@ This study proposes a novel approach to improve the efficiency of segmentation m
 ## 📁 Project Structure
 
 ```bash
-taskRetrieval/
-├── main.py                # Main entry point to run the pipeline
-├── experiment_params_data.py  # Dataset configurations & experiment settings
+EstimatingInspectionTasks/
 ├── env_vars.py            # Environment variables & file paths
+├── experiment_params_data.py  # Dataset configurations & experiment settings
+├── LICENSE                # license information
+├── main.py                # Main entry point to run the pipeline
+├── requirements.txt       # requirements file
 ├── README.md              # Project documentation
+├── data/                  # context data for potential model fitting
 ├── results/               # Output directory for experiment results
-├── datasets/              # Input datasets
-├── models/                # Model definitions
-└── scripts/               # Scripts for training, evaluation, and utilities
+├── src/                   # source code for feature extraction, similarity computation, and analysis
 ```
 
 ## 🚀 Approach Overview
@@ -39,18 +40,26 @@ computing similarities, and evaluating
 segmentation performance statistically.
 
 ### 🔧 Steps:
-* Convert images to grayscale
-* Extract feature embeddings using a ResNet model
+* Compute similarity metrics between datasets (labelled image data collection EVIAS)
 * Compute the cosine similarity between feature vectors
-* Cross-Apply filter pipelines (CGP) to datasets
-* Compute the spearman corellation between dataset features and segmentation performance
+* Cross-Apply filter pipelines (CGP) to datasets, see project:
+* Perform statistical analysis:
+  * correlation between dataset features and segmentation performance
+  * regression analysis
+  * hypothesis testing
+  * multi-dimensional analysis
 
 ### 🧩 1. Feature Extraction
 Goal: Represent each dataset through a vector of statistical and visual features.
 
-Use a pre-trained CNN (e.g., **ResNet-18**, **ResNet-50**, or **VGG-16**) to embed each image into a fixed-dimensional vector space.
+Feature extraction is using different complexity metrics:
+* pre-trained CNN (e.g., **ResNet-18**, **ResNet-50**, or **VGG-16**) to embed each image into a fixed-dimensional vector space.
+* entropy-based complexity measures
+* texture-based features
+* edge density
+* superpixel-based features
 
-For example, remove the final classification layer and use the **penultimate layer** (e.g., a 512-dimensional vector for ResNet-18).
+* For example, remove the final classification layer and use the **penultimate layer** (e.g., a 512-dimensional vector for ResNet-18).
 
 Let each image  
 &nbsp;&nbsp;&nbsp;&nbsp;_x_ ∈ ℝ<sup>H×W×3</sup>  
@@ -85,7 +94,7 @@ Where:
 * FP = False Positives
 * FN = False Negatives
 
-### 📐 4. Spearman Correlation
+### 📐 4. Pearson and Spearman Correlation
 
 * Start with Spearman correlation (rank-based, non-parametric, robust to non-linear relationships):
 
@@ -116,33 +125,13 @@ _Where:_
 * β<sub>1</sub> = slope (how much performance changes with similarity)
 * ε = error term (residuals)
 
-### 🧠 x. Statistical Hypothesis
+### 🧠 6. Statistical Hypothesis
 * Null Hypothesis (H0): There is no correlation between dataset similarity and cross-application performance.
 * Alternative Hypothesis (H1): Higher similarity does lead to better cross-application performance.
 
 _If the p-value < 0.05, you reject H0 and conclude that the correlation is statistically significant._
 
-### [---] Stratified Group Comparison (DROPPED!)
-Divide dataset pairs into e.g. 3 bins:
-* High similarity (top 33%)
-* Medium similarity
-* Low similarity (bottom 33%)
-
-Then run Mann-Whitney U-tests (non-parametric) between performance distributions of the groups:
-
-*If p < 0.05, high similarity groups statistically outperform low similarity ones.*
-
-## 🧪 In-Depth Analyses
-👉👉👉 **T O D O:**
-- [ ] Multi-dimensional Similarity
-- [ ] comparing weak against strong pipelines
-- [ ] asymmetry
-- [ ] cluster datasets by transfer behavior (not similarity)
-- [ ] analyze failure modes
-- [ ] include additional predictors (original_score, dataset type, pipeline complexity)
-- [ ] Suggest / Try a reuse model
-
-### 📊 Multi-dimensional Similarity
+### 📊 7. Multi-dimensional Similarity
 In addition to traditional OLS regression and correlation, we can also test specific hypotheses about the relationship between dataset similarity and segmentation performance. This allows a multi-dimensional insight.
 
 Use several similarity measures to capture different aspects of dataset similarity:

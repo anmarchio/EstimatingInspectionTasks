@@ -294,6 +294,9 @@ Why:
 
 __Pipeline reuse is not determined by dataset similarity alone, but by the compatibility between dataset characteristics (e.g., edge density, texture complexity) and the structural composition of the pipeline.__
 
+## DETAILED ANALYSIS
+
+See: [Results.md](Results.md).
 
 ## 📖 How to Cite
 If you use this code or ideas from our paper, please cite:

@@ -1,4 +1,9 @@
-## Analysis Results
+# Cross-Application Analysis
+
+This document provides a concise summary of the cross-application analysis, 
+including similarity matrices and distributions 
+for multiple metrics (CNN, edge, texture, entropy, frequency, superpixel), 
+regression and logit results, correlation analyses, and visualizations.
 
 Similarity values by metric can be found in the following files:
 
@@ -9,7 +14,109 @@ Similarity values by metric can be found in the following files:
 * frequency: `results\similarity\20260416-181811\20260416-181934_fourFreq.csv`
 * superpixel: `results\similarity\20260416-181811\20260416-181917_noOfSup.csv`
 
-### CORRELATION ANALYSIS
+## Table of Contents
+
+- [Summary](#summary)
+  - [Single Metric Assocation](#single-metric-assocation)
+  - [Multi-metric Regression Summary](#multi-metric-regression-summary)
+  - [Key predictors (compact summary)](#key-predictors-compact-summary)
+  - [Bin-wise correlations](#bin-wise-correlations)
+
+- [Detailed Statistics](#detailed-statistics)
+  - [MEAN MCC Correlation Analysis](#mean-mcc-correlation-analysis)
+    - [MEAN MCC: Correlation with Resnet Embedding](#mean-mcc-correlation-with-resnet-embedding)
+    - [Resnet Transfer Rate](#resnet-transfer-rate)
+
+    - [MEAN MCC: Correlation with Histogram Entropy](#mean-mcc-correlation-with-histogram-entropy)
+    - [Histogram Entropy Transfer Score](#histogram-entropy-transfer-score)
+
+    - [MEAN MCC: Correlation with Texture Feature Similarity](#mean-mcc-correlation-with-texture-feature-similarity)
+    - [Texture Feature Similarity - Transfer Score](#texture-feature-similarity---transfer-score)
+
+    - [MEAN MCC: Correlation with Edge Density](#mean-mcc-correlation-with-edge-density)
+    - [Edge Density Transfer Score](#edge-density-transfer-score)
+
+    - [MEAN MCC: Correlation with Number of Superpixels](#mean-mcc-correlation-with-number-of-superpixels)
+    - [Number of Superpixels Transfer Score](#number-of-superpixels-transfer-score)
+
+    - [MEAN MCC: Correlation with Fourier Frequency](#mean-mcc-correlation-with-fourier-frequency)
+    - [Fourier Frequency Transfer Score](#fourier-frequency-transfer-score)
+
+  - [Mean MCC: Pipeline Performance & Feature Impact](#mean-mcc-pipeline-performance--feature-impact)
+    - [Mean MCC: OLS Linear Regression](#mean-mcc-ols-linear-regression)
+
+  - [BEST MCC Correlation Analysis](#best-mcc-correlation-analysis)
+    - [BEST MCC: Correlation with Resnet Embedding](#best-mcc-correlation-with-resnet-embedding)
+    - [BEST Resnet Transfer Rate](#best-resnet-transfer-rate)
+
+    - [BEST MCC: Correlation with Histogram Entropy](#best-mcc-correlation-with-histogram-entropy)
+    - [BEST Histogram Entropy Transfer Score](#best-histogram-entropy-transfer-score)
+
+    - [BEST MCC: Correlation with Texture Feature Similarity](#best-mcc-correlation-with-texture-feature-similarity)
+    - [BEST Texture Feature Similarity - Transfer Score](#best-texture-feature-similarity---transfer-score)
+
+## Summary
+
+### Single Metric Assocation:
+
+| Metric      | r (Mean MCC) | R² (Mean MCC) | R² (Best MCC) |
+|------------|--------------|--------------|--------------|
+| CNN        | 0.153        | 0.023        | 0.015        |
+| Entropy    | 0.112        | 0.013        | 0.011        |
+| Superpixel | 0.077        | 0.006        | 0.020        |
+| Texture    | 0.080        | 0.006        | 0.019        |
+| Edge       | 0.068        | 0.005        | 0.013        |
+| Frequency  | 0.037        | 0.001        | 0.010        |
+
+### Multi-metric Regression Summary
+
+| Predictor       | Mean MCC (OLS) | Best MCC (OLS) | Transfer (Logit) |
+|----------------|---------------|---------------|------------------|
+| CNN            | 0.015 ***     | 0.013 ***     | 0.178 **         |
+| Entropy        | 0.013 ***     | 0.010 *       | 0.219 **         |
+| Superpixel     | 0.008 *       | 0.016 ***     | 0.255 **         |
+| Edge           | 0.004         | 0.003         | 0.155            |
+| Texture        | 0.002         | 0.004         | 0.169            |
+| Frequency      | -0.006        | 0.004         | 0.020            |
+| Original score | -0.005        | -0.009 *      | -0.120 *         |
+
+Model fit:
+- Mean MCC: R² = 0.040
+- Best MCC: R² = 0.050
+- Logit: pseudo-R² ≈ 0.05
+
+Significance:
+- *** p < 0.001
+- **  p < 0.01
+- *   p < 0.05
+
+### Key predictors (compact summary)
+
+| Metric      | Strength / Role |
+|------------|----------------|
+| CNN        | Strong (mean transfer) |
+| Entropy    | Strong (robust across models) |
+| Superpixel | Strong (best-case transfer) |
+| Texture    | Moderate |
+| Edge       | Weak |
+| Frequency  | Very weak |
+
+### Bin-wise correlations
+
+| Outcome  | Metric     | Similarity Bin | Pearson r | Spearman ρ | Significance |
+|---------|-----------|----------------|----------|-----------|-------------|
+| Mean MCC | CNN       | 0.8–1.0        | 0.292    | 0.315     | p < 0.05    |
+| Mean MCC | Entropy   | 0.8–1.0        | 0.117    | 0.146     | p < 0.001   |
+| Mean MCC | Frequency | 0.8–1.0        | 0.030    | 0.043     | n.s.        |
+| Best MCC | Texture   | 0.6–0.7        | 0.498    | 0.469     | p < 0.05    |
+| Best MCC | Superpixel| 0.8–1.0        | 0.009    | -0.005    | n.s.        |
+
+## Detailed Statistics
+
+This section provides detailed statistical analyses of correlations, regression models, 
+and transfer scores for the cross-application pipelines and similarity study.
+
+### MEAN MCC Correlation Analysis
 
 Metrics not properly indexed:
 * [UNKNOWN INDEX LABEL] '80.jpg_bright'
@@ -575,9 +682,8 @@ Logit Regression Results:
 | superpixel      | 0.2835  | 0.087   | 3.256  | 0.001| 0.113  | 0.454  |
 | original_score  | -0.1560 | 0.064   | -2.424 | 0.015| -0.282 | -0.030 |
 
----
 
----
+### BEST MCC Correlation Analysis
 
 #### BEST MCC: Correlation with Resnet Embedding
 
@@ -1123,11 +1229,11 @@ Logit Regression Results:
 | superpixel      | 0.2554  | 0.081   | 3.167   | 0.002    | 0.097  | 0.414  |
 | original_score  | -0.1199 | 0.061   | -1.968  | 0.049    | -0.239 | -0.001 |
 
-### Similarity Distributions
+## Similarity Distributions
 
 The following tables show the similarity distributions for experiment: `results/similarity/20260416-181811`
 
-#### Distribution for:  `20260115-181800_resnet.csv`
+### `20260115-181800_resnet.csv`
 
 | Similarity | Range             | Count | Percentage |
 |------------|-------------------|-------|------------|
@@ -1141,7 +1247,7 @@ The following tables show the similarity distributions for experiment: `results/
 * common count: 38
 * shape after align: (38, 38)
 
-#### Distribution for:  `20260416-181811_histEnt.csv`
+### `20260416-181811_histEnt.csv`
 
 | Similarity | Range             | Count | Percentage |
 |------------|-------------------|-------|------------|
@@ -1155,7 +1261,7 @@ The following tables show the similarity distributions for experiment: `results/
 * common count: 38
 * shape after align: (38, 38)
 
-#### Distribution for: `20260416-181819_textComp.csv`
+### `20260416-181819_textComp.csv`
 | Similarity | Range             | Count | Percentage |
 |------------|-------------------|-------|------------|
 | None       | > -1.0 and <= 0.3 | 0     | 0.00%      |
@@ -1167,7 +1273,7 @@ The following tables show the similarity distributions for experiment: `results/
 * common count: 38
 * shape after align: (38, 38)
 
-#### Distribution for:  results\similarity\20260416-181811\20260416-181835_edgeDen.csv
+### `20260416-181835_edgeDen.csv`
 | Similarity | Range             | Count | Percentage |
 |------------|-------------------|-------|------------|
 | None       | > -1.0 and <= 0.3 | 0     | 0.00%      |
@@ -1180,7 +1286,7 @@ The following tables show the similarity distributions for experiment: `results/
 * common count: 38
 * shape after align: (38, 38)
 
-#### Distribution for:  `20260416-181917_noOfSup.csv`
+### `20260416-181917_noOfSup.csv`
 
 | Similarity | Range             | Count | Percentage |
 |------------|-------------------|-------|------------|
@@ -1193,7 +1299,7 @@ The following tables show the similarity distributions for experiment: `results/
 * common count: 38
 * shape after align: (38, 38)
 
-#### Distribution for:  `20260416-181934_fourFreq.csv`
+### `20260416-181934_fourFreq.csv`
 
 | Similarity | Range             | Count | Percentage |
 |------------|-------------------|-------|------------|
@@ -1206,9 +1312,8 @@ The following tables show the similarity distributions for experiment: `results/
 * common count: 38
 * shape after align: (38, 38)
 
-# Statistical Figures
 
-## Similarity Heatmaps
+### Similarity Heatmaps
 
 <img src="results/similarity/20260416-181811/20260115-181800_resnet_heatmap.png" alt="Similarity Heatmap Resnet" width="300">
 
@@ -1222,7 +1327,7 @@ The following tables show the similarity distributions for experiment: `results/
 
 <img src="results/similarity/20260416-181811/20260416-181934_fourFreq_heatmap.png" alt="Similarity Heatmap fourFreq" width="300">
 
-## MEAN Similarity Scatterplots
+### MEAN Similarity Scatterplots
 
 <img src="results/similarity/20260416-181811/20260115-181800_resnet_mean_scatter.png" alt="Resnet Scatterplot" width="300">
 
@@ -1236,7 +1341,7 @@ The following tables show the similarity distributions for experiment: `results/
 
 <img src="results/similarity/20260416-181811/20260416-181934_fourFreq_mean_scatter.png" alt="fourFreq Scatterplot" width="300">
 
-## BEST Similarity Scatterplots
+### BEST Similarity Scatterplots
 
 <img src="results/similarity/20260416-181811/20260115-181800_resnet_best_scatter.png" alt="Resnet Scatterplot" width="300">
 

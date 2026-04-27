@@ -40,7 +40,7 @@ Similarity values by metric can be found in the following files:
     - [Number of Superpixels Transfer Score](#number-of-superpixels-transfer-score)
 
     - [MEAN MCC: Correlation with Fourier Frequency](#mean-mcc-correlation-with-fourier-frequency)
-    - [Fourier Frequency Transfer Score](#fourier-frequency-transfer-score)
+    - [MEAN Fourier Frequency Transfer Score](#mean-fourier-frequency-transfer-score)
 
   - [Mean MCC: Pipeline Performance & Feature Impact](#mean-mcc-pipeline-performance--feature-impact)
     - [Mean MCC: OLS Linear Regression](#mean-mcc-ols-linear-regression)
@@ -54,6 +54,23 @@ Similarity values by metric can be found in the following files:
 
     - [BEST MCC: Correlation with Texture Feature Similarity](#best-mcc-correlation-with-texture-feature-similarity)
     - [BEST Texture Feature Similarity - Transfer Score](#best-texture-feature-similarity---transfer-score)
+    
+    - [BEST MCC: Correlation with Edge Density](#best-mcc-correlation-with-edge-density)
+    - [BEST Edge Density - Transfer Score](#best-edge-density---transfer-score)
+    
+    - [BEST MCC: Correlation with Number of Superpixels](#best-mcc-correlation-with-number-of-superpixels)
+    - [BEST Number of Superpixels - Transfer Score](#best-number-of-superpixels---transfer-score)
+    
+    - [BEST MCC: Correlation with Fourier Frequency](#best-mcc-correlation-with-fourier-frequency)
+    - [BEST Fourier Frequency - Transfer Score](#best-fourier-frequency---transfer-score)
+
+  - [Best MCC: Pipeline Performance & Feature Impact](#best-mcc-pipeline-performance--feature-impact)
+    - [Best MCC: OLS Linear Regression](#best-mcc-ols-linear-regression)
+
+  - [Similarity Distributions](#similarity-distributions)
+    - [Similarity Heatmaps](#similarity-heatmaps)
+    - [MEAN Similarity Scatterplots](#mean-similarity-scatterplots)
+    - [BEST Similarity Scatterplots](#best-similarity-scatterplots)
 
 ## Summary
 
@@ -546,7 +563,7 @@ Analysis for Bin Size 0.1:
 | (0.8, 0.9]     | 0.089        | 0.45868         | 0.104         | 0.38406          |
 | (0.9, 1.0]     | 0.004        | 0.88901         | 0.025         | 0.41550          |
 
-#### Fourier Frequency Transfer Score
+#### MEAN Fourier Frequency Transfer Score
 
 Overview:
 * Pipelines total: 38
@@ -1095,7 +1112,7 @@ Analysis for Bin Size: 0.1:
 | (0.8, 0.9]     | 0.136        | 0.25560         | 0.042         | 0.72801          |
 | (0.9, 1.0]     | -0.031       | 0.32356         | -0.014        | 0.64422          |
 
-#### Fourier Frequency Transfer Score
+#### BEST Fourier Frequency Transfer Score
 
 Overview:
 * Pipelines total: 38
@@ -1131,7 +1148,7 @@ Top pipelines by combined_score (`mean * transfer_rate`):
 | MVTec_AD_Screw_Scratch         | 0.094959         | 0.891892       | 0.084693       |
 | MVTec_AD_Metal_Nut             | 0.087780         | 0.945946       | 0.083035       |
 
-### BEST MCC: Pipeline Performance & Feature Impact
+#### BEST MCC: Pipeline Performance & Feature Impact
 
 Top pipelines (by mean_cross_score with additional stats):
 

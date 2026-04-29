@@ -1,11 +1,12 @@
-# Cross-Application Analysis
+# Results of Cross-Application Experimentation
 
-This document provides a concise summary of the cross-application analysis, 
+This page provides a concise summary of the CGP pipeline cross-application experiments, 
 including similarity matrices and distributions 
-for multiple metrics (CNN, edge, texture, entropy, frequency, superpixel), 
-regression and logit results, correlation analyses, and visualizations.
+for multiple complexity metrics (CNN, edge, texture, entropy, frequency, superpixel).
+It also provides the regression and logit results, correlation analyses on the cosine similarity `C_sim` 
+between cross-pipeline performance (MCC) and the image complexity as well as the related visualizations.
 
-Similarity values by metric can be found in the following files:
+Similarity values by complexity metric can be found in the following files:
 
 * cnn: `results\similarity\20260416-181811\20260115-181800_resnet.csv`
 * edge: `results\similarity\20260416-181811\20260416-181835_edgeDen.csv`
@@ -42,7 +43,8 @@ Similarity values by metric can be found in the following files:
     - [MEAN MCC: Correlation with Fourier Frequency](#mean-mcc-correlation-with-fourier-frequency)
     - [MEAN Fourier Frequency Transfer Score](#mean-fourier-frequency-transfer-score)
 
-  - [Mean MCC: Pipeline Performance & Feature Impact](#mean-mcc-pipeline-performance--feature-impact)
+  - [MEAN MCC: Pipeline Performance & Feature Impact](#mean-mcc-pipeline-performance--feature-impact)
+    - [MEAN MCC: Performance by Mean Scross Score](#mean-mcc-performance-by-mean-scross-score)
     - [Mean MCC: OLS Linear Regression](#mean-mcc-ols-linear-regression)
 
   - [BEST MCC Correlation Analysis](#best-mcc-correlation-analysis)
@@ -64,11 +66,14 @@ Similarity values by metric can be found in the following files:
     - [BEST MCC: Correlation with Fourier Frequency](#best-mcc-correlation-with-fourier-frequency)
     - [BEST Fourier Frequency - Transfer Score](#best-fourier-frequency---transfer-score)
 
-  - [Best MCC: Pipeline Performance & Feature Impact](#best-mcc-pipeline-performance--feature-impact)
-    - [Best MCC: OLS Linear Regression](#best-mcc-ols-linear-regression)
+  - [BEST MCC: Pipeline Performance & Feature Impact](#best-mcc-pipeline-performance--feature-impact)  
+    - [BEST MCC: Performance by Mean Scross Score](#best-mcc-performance-by-mean-scross-score)
+    - [BEST MCC: OLS Linear Regression](#best-mcc-ols-linear-regression)
 
-  - [Similarity Distributions](#similarity-distributions)
+  - [Similarity Distributions by Metric](#similarity-distributions-by-metric)
     - [Similarity Heatmaps](#similarity-heatmaps)
+    
+  - [Regression Scatterplots](#regression-scatterplots)
     - [MEAN Similarity Scatterplots](#mean-similarity-scatterplots)
     - [BEST Similarity Scatterplots](#best-similarity-scatterplots)
 
@@ -599,8 +604,9 @@ Top pipelines by combined_score (`mean * transfer_rate`):
 | AirCarbon3_80.jpg_dark_5       | 0.054834         | 0.837838       | 0.045942       |
 | Pultrusion_Window              | 0.046199         | 0.972973       | 0.044950       |
 
-### Mean MCC: Pipeline Performance & Feature Impact
+### MEAN MCC: Pipeline Performance & Feature Impact
 
+#### MEAN MCC: Performance by Mean Scross Score
 Top pipelines (by mean_cross_score with additional stats):
 
 | Source                         | Mean Cross Score | Count Targets | Combined Score |
@@ -623,7 +629,7 @@ Metric performance summary (regression / explanatory power):
 | edge        | 1406  | 0.004657 | 1.05e-02     | -1983.786304 | -1973.289296 |
 | frequency   | 1406  | 0.001382 | 1.64e-01     | -1979.167764 | -1968.670756 |
 
-#### Mean MCC: OLS Linear Regression
+#### MEAN MCC: OLS Linear Regression
 
 OLS Regression Results:
 
@@ -1148,7 +1154,9 @@ Top pipelines by combined_score (`mean * transfer_rate`):
 | MVTec_AD_Screw_Scratch         | 0.094959         | 0.891892       | 0.084693       |
 | MVTec_AD_Metal_Nut             | 0.087780         | 0.945946       | 0.083035       |
 
-#### BEST MCC: Pipeline Performance & Feature Impact
+### BEST MCC: Pipeline Performance & Feature Impact
+
+#### BEST MCC: Performance by Mean Scross Score
 
 Top pipelines (by mean_cross_score with additional stats):
 
@@ -1172,7 +1180,6 @@ Metric performance summary:
 | frequency   | 1406  | 0.010374 | 1.30e-04    | -1720.978419 | -1710.481410 |
 
 #### BEST MCC: OLS Linear Regression
-OLS Regression Results:
 
 | Metric               | Value        |
 |---------------------|-------------|
@@ -1246,7 +1253,7 @@ Logit Regression Results:
 | superpixel      | 0.2554  | 0.081   | 3.167   | 0.002    | 0.097  | 0.414  |
 | original_score  | -0.1199 | 0.061   | -1.968  | 0.049    | -0.239 | -0.001 |
 
-## Similarity Distributions
+## Similarity Distributions by Metric
 
 The following tables show the similarity distributions for experiment: `results/similarity/20260416-181811`
 
@@ -1343,6 +1350,8 @@ The following tables show the similarity distributions for experiment: `results/
 <img src="results/similarity/20260416-181811/20260416-181917_noOfSup_heatmap.png" alt="Similarity Heatmap noOfSup" width="300">
 
 <img src="results/similarity/20260416-181811/20260416-181934_fourFreq_heatmap.png" alt="Similarity Heatmap fourFreq" width="300">
+
+## Regression Scatterplots
 
 ### MEAN Similarity Scatterplots
 

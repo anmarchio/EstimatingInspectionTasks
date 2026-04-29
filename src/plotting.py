@@ -4,7 +4,7 @@ import pandas as pd
 
 import seaborn as sns
 from glob import glob
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 
 from env_vars import RESULTS_PATH
 from src.data_handling import print_table, read_df

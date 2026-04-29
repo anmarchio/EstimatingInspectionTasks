@@ -21,3 +21,5 @@ tqdm
 arviz
 pymc
 requests
+#pyplot
+pandas

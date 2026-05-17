@@ -7,6 +7,23 @@ import seaborn as sns
 
 from env_vars import SIMILARITY_DIR
 
+CORR_MEAN_BEST_PATHS = [
+    [
+        "resnet",
+        os.path.join(SIMILARITY_DIR, "20260416-181811", "20260115-181800_resnet_mean_correlation_values.csv"),
+        os.path.join(SIMILARITY_DIR, "20260416-181811", "20260115-181800_resnet_best_correlation_values.csv")
+    ],
+    [
+        "histogram",
+        os.path.join(SIMILARITY_DIR, "20260416-181811", "20260416-181811_histEnt_mean_correlation_values.csv"),
+        os.path.join(SIMILARITY_DIR, "20260416-181811", "20260416-181811_histEnt_best_correlation_values.csv")
+    ],
+    [
+        "texture",
+        os.path.join(SIMILARITY_DIR, "20260416-181811", "20260416-181819_textComp_mean_correlation_values.csv"),
+        os.path.join(SIMILARITY_DIR, "20260416-181811", "20260416-181819_textComp_best_correlation_values.csv")
+    ]
+]
 
 def plot_ols_explanatory_power_fig():
     print("Plotting OLS explanatory power figure ...")
@@ -110,8 +127,8 @@ def plot_best_mean_correlation_overlay(
 
     sns.scatterplot(
         data=best_df,
-        x="Cosine Similarity",
-        y="Cross Application MCC",
+        x="similarity",
+        y="cross_score",
         color="orange",
         label="BEST",
         alpha=0.45
@@ -119,8 +136,8 @@ def plot_best_mean_correlation_overlay(
 
     sns.scatterplot(
         data=mean_df,
-        x="Cosine Similarity",
-        y="Cross Application MCC",
+        x="similarity",
+        y="cross_score",
         color="blue",
         label="MEAN",
         alpha=0.45
@@ -140,29 +157,12 @@ def plot_best_mean_correlation_overlay(
 
 
 def main():
-    plot_ols_explanatory_power_fig()
-    get_latex_figure()
+    #plot_ols_explanatory_power_fig()
 
-    corr_mean_best_paths = [
-        [
-            "resnet",
-            os.path.join(SIMILARITY_DIR, "20260517-171500", "20260517_correlation_mean_resnet.csv"),
-            os.path.join(SIMILARITY_DIR, "20260517-171500", "20260517_correlation_best_resnet.csv")
-        ],
-        [
-            "histogram",
-            os.path.join(SIMILARITY_DIR, "20260517-171500", "20260517_correlation_mean_histogram.csv"),
-            os.path.join(SIMILARITY_DIR, "20260517-171500", "20260517_correlation_best_histogram.csv")
-        ],
-        [
-            "texture",
-            os.path.join(SIMILARITY_DIR, "20260517-171500", "20260517_correlation_mean_texture.csv"),
-            os.path.join(SIMILARITY_DIR, "20260517-171500", "20260517_correlation_best_texture.csv")
-        ]
-    ]
+    #get_latex_figure()
 
-    for name, corr_mean_path, corr_best_path in corr_mean_best_paths:
-        best_mean_overlay_path = os.path.join(SIMILARITY_DIR, "20260517-171500", name + "_best_mean_overlay.png")
+    for name, corr_mean_path, corr_best_path in CORR_MEAN_BEST_PATHS:
+        best_mean_overlay_path = os.path.join(SIMILARITY_DIR, "20260416-181811", name + "_best_mean_overlay.png")
         plot_best_mean_correlation_overlay(
             best_csv_path=corr_best_path,
             mean_csv_path=corr_mean_path,

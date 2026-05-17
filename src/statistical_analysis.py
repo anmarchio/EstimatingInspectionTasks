@@ -365,13 +365,22 @@ def compute_correlation_analysis(similarity_filepath, cross_results_dir):
     """
     _, correlation_df = load_and_prepare_similarity_and_cross_results(similarity_filepath, cross_results_dir)
 
-    # Store values for later overlay plots
-    if output_csv_path is not None:
-        correlation_df[["similarity", "cross_score"]].to_csv(
-            output_csv_path,
-            index=False
-        )
-        print(f"✅ Saved correlation values to: {output_csv_path}")
+    # Save correlation values to CSV
+    similarity_dir = os.path.dirname(similarity_filepath)
+    similarity_filename = os.path.basename(similarity_filepath)
+    similarity_name = os.path.splitext(similarity_filename)[0]
+    result_type = os.path.basename(cross_results_dir).lower()
+
+    output_csv_path = os.path.join(
+        similarity_dir,
+        f"{similarity_name}_{result_type}_correlation_values.csv"
+    )
+    correlation_df[["similarity", "cross_score"]].to_csv(
+        output_csv_path,
+        index=False
+    )
+
+    print(f"✅ Saved correlation values to: {output_csv_path}")
 
     try:
         # --- Step 5: Compute correlations

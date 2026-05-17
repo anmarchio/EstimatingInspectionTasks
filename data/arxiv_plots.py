@@ -157,9 +157,9 @@ def plot_best_mean_correlation_overlay(
 
 
 def main():
-    #plot_ols_explanatory_power_fig()
+    plot_ols_explanatory_power_fig()
 
-    #get_latex_figure()
+    get_latex_figure()
 
     for name, corr_mean_path, corr_best_path in CORR_MEAN_BEST_PATHS:
         best_mean_overlay_path = os.path.join(SIMILARITY_DIR, "20260416-181811", name + "_best_mean_overlay.png")

@@ -25,6 +25,7 @@ Similarity values by complexity metric can be found in the following files:
 
 - [Detailed Statistics](#detailed-statistics)
   - [MEAN MCC Correlation Analysis](#mean-mcc-correlation-analysis)
+  - [MEAN MCC:Overall Overview](#mean-mcc-overall-overview)
     - [MEAN MCC: Correlation with Resnet Embedding](#mean-mcc-correlation-with-resnet-embedding)
     - [Resnet Transfer Rate](#resnet-transfer-rate)
 
@@ -48,6 +49,7 @@ Similarity values by complexity metric can be found in the following files:
     - [Mean MCC: OLS Linear Regression](#mean-mcc-ols-linear-regression)
 
   - [BEST MCC Correlation Analysis](#best-mcc-correlation-analysis)
+  - [BEST MCC:Overall Overview](#best-mcc-overall-overview)
     - [BEST MCC: Correlation with Resnet Embedding](#best-mcc-correlation-with-resnet-embedding)
     - [BEST Resnet Transfer Rate](#best-resnet-transfer-rate)
 
@@ -143,6 +145,24 @@ and transfer scores for the cross-application pipelines and similarity study.
 Metrics not properly indexed:
 * [UNKNOWN INDEX LABEL] '80.jpg_bright'
 * [UNKNOWN COLUMN LABEL] '80.jpg_bright'
+
+#### MEAN MCC: Overall Overview
+Overall correlation values for MEAN MCC, without Bins:
+
+| Complexity Metric | Pearson | Spearman | P-Value   | 
+|-------------------|---------|----------|-----------| 
+| CNN Resnet        | 0.153   | -        | 8.447e-09 | 
+| CNN Resnet        | -       | 0.220    | 6.298e-17 | 
+| Histogram Entropy | 0.068   | -        | 0.011     | 
+| Histogram Entropy | -       | 0.105    | 8.511e-05 | 
+| Texture Feature   | 0.080   | -        | 0.003     | 
+| Texture Feature   | -       | 0.095    | 0.0003    | 
+| Edge Density      | 0.112   | -        | 2.605e-05 | 
+| Edge Denstiy      | -       | 0.151    | 1.265e-08 | 
+| Superpixels       | 0.037   | -        | 0.164     | 
+| Superpixels       | -       | 0.048    | 0.072     | 
+| Fourier Frequency | 0.077   | -        | 0.0038    | 
+| Fourier Frequency | -       | 0.079    | 0.0031    | 
 
 #### MEAN MCC: Correlation with Resnet Embedding
 
@@ -707,6 +727,24 @@ Logit Regression Results:
 
 
 ### BEST MCC Correlation Analysis
+
+#### BEST MCC: Overall Overview
+Overall correlation values for BEST MCC, without Bins:
+
+| Complexity Metric | Pearson | Spearman | P-Value    | 
+|-------------------|---------|----------|------------| 
+| CNN Resnet        | 0.124   | -        | 3.253e-06  | 
+| CNN Resnet        | -       | 0.154    | 6.402e-09  | 
+| Histogram Entropy | 0.116   | -        | 1.297e-05  | 
+| Histogram Entropy | -       | 0.166    | 3.275e-10  | 
+| Texture Feature   | 0.137   | -        | 2.405e-07  | 
+| Texture Feature   | -       | 0.125    | 2.441e-06  | 
+| Edge Density      | 0.107   | -        | 6.093e-05  | 
+| Edge Denstiy      | -       | 0.131    | 7.789e-07  | 
+| Superpixels       | 0.102   | -        | 0.0001     | 
+| Superpixels       | -       | 0.141    | 1.164e-07  | 
+| Fourier Frequency | 0.143   | -        | 8.0391e-08 | 
+| Fourier Frequency | -       | 0.0896   | 0.0008     | 
 
 #### BEST MCC: Correlation with Resnet Embedding
 

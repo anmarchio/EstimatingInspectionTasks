@@ -1,5 +1,11 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import seaborn as sns
+
+from env_vars import SIMILARITY_DIR
 
 
 def plot_ols_explanatory_power_fig():
@@ -84,9 +90,85 @@ def get_latex_figure(print_output=True):
         print(latex_code)
     return latex_code
 
+def plot_best_mean_correlation_overlay(
+    best_csv_path,
+    mean_csv_path,
+    title="BEST / MEAN Similarity-Cross Performance",
+    save_path=None
+):
+    best_df = pd.read_csv(best_csv_path)
+    mean_df = pd.read_csv(mean_csv_path)
+
+    required_cols = {"similarity", "cross_score"}
+
+    for label, df in [("BEST", best_df), ("MEAN", mean_df)]:
+        missing = required_cols - set(df.columns)
+        if missing:
+            raise ValueError(f"{label} CSV is missing columns: {missing}")
+
+    plt.figure(figsize=(8, 6))
+
+    sns.scatterplot(
+        data=best_df,
+        x="Cosine Similarity",
+        y="Cross Application MCC",
+        color="orange",
+        label="BEST",
+        alpha=0.45
+    )
+
+    sns.scatterplot(
+        data=mean_df,
+        x="Cosine Similarity",
+        y="Cross Application MCC",
+        color="blue",
+        label="MEAN",
+        alpha=0.45
+    )
+
+    plt.title(title)
+    plt.xlabel("Cosine Similarity")
+    plt.ylabel("Cross-Application Performance")
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+
+    if save_path is not None:
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+
+    plt.show()
+
+
 def main():
     plot_ols_explanatory_power_fig()
     get_latex_figure()
+
+    corr_mean_best_paths = [
+        [
+            "resnet",
+            os.path.join(SIMILARITY_DIR, "20260517-171500", "20260517_correlation_mean_resnet.csv"),
+            os.path.join(SIMILARITY_DIR, "20260517-171500", "20260517_correlation_best_resnet.csv")
+        ],
+        [
+            "histogram",
+            os.path.join(SIMILARITY_DIR, "20260517-171500", "20260517_correlation_mean_histogram.csv"),
+            os.path.join(SIMILARITY_DIR, "20260517-171500", "20260517_correlation_best_histogram.csv")
+        ],
+        [
+            "texture",
+            os.path.join(SIMILARITY_DIR, "20260517-171500", "20260517_correlation_mean_texture.csv"),
+            os.path.join(SIMILARITY_DIR, "20260517-171500", "20260517_correlation_best_texture.csv")
+        ]
+    ]
+
+    for name, corr_mean_path, corr_best_path in corr_mean_best_paths:
+        best_mean_overlay_path = os.path.join(SIMILARITY_DIR, "20260517-171500", name + "_best_mean_overlay.png")
+        plot_best_mean_correlation_overlay(
+            best_csv_path=corr_best_path,
+            mean_csv_path=corr_mean_path,
+            save_path=best_mean_overlay_path,
+            title= name + " BEST / MEAN Similarity-Cross Performance"
+        )
 
 if __name__ == "__main__":
     main()

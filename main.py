@@ -16,7 +16,7 @@ def show_help():
     print("0 : Exit")
     print("1 : Compute similarities")
     print("2 : Display similarity plots")
-    print("3 : Spearman correlation")
+    print("3 : Correlation Analysis")
     print("4 : Linear regression (CNN similarity)")
     print("5 : Mann-Whitney U test")
     print("6 : Bayesian regression")
@@ -52,7 +52,7 @@ def show_menu():
 
     # Single Insights Section
     print(f"{GREEN}{BOLD}SINGLE INSIGHTS{RESET}")
-    print("[3] Spearman Correlation")
+    print("[3] Correlation Analysis")
     print("[4] Linear Regression with CNN Similarity")
     print("[5] Mann-Whitney-U Test (less relevant)")
     print("[6] Bayesian Linear Regression (not analyzed)")

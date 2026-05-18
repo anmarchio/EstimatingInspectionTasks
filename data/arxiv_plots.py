@@ -9,17 +9,17 @@ from env_vars import SIMILARITY_DIR
 
 CORR_MEAN_BEST_PATHS = [
     [
-        "resnet",
+        "CNN Embedding",
         os.path.join(SIMILARITY_DIR, "20260416-181811", "20260115-181800_resnet_mean_correlation_values.csv"),
         os.path.join(SIMILARITY_DIR, "20260416-181811", "20260115-181800_resnet_best_correlation_values.csv")
     ],
     [
-        "histogram",
+        "Histogram Entropy",
         os.path.join(SIMILARITY_DIR, "20260416-181811", "20260416-181811_histEnt_mean_correlation_values.csv"),
         os.path.join(SIMILARITY_DIR, "20260416-181811", "20260416-181811_histEnt_best_correlation_values.csv")
     ],
     [
-        "texture",
+        "Texture Complexity",
         os.path.join(SIMILARITY_DIR, "20260416-181811", "20260416-181819_textComp_mean_correlation_values.csv"),
         os.path.join(SIMILARITY_DIR, "20260416-181811", "20260416-181819_textComp_best_correlation_values.csv")
     ]
@@ -153,8 +153,8 @@ def plot_best_mean_correlation_overlay(
     if save_path is not None:
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
 
-    plt.show()
 
+    plt.show()
 
 def main():
     plot_ols_explanatory_power_fig()

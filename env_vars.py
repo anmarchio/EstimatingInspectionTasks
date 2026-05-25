@@ -2,11 +2,11 @@ import os
 
 # Default File Paths
 
-WDIR = os.path.join("/", "run", "media", "andy", "Volume", "dev", "EstimatingInspectionTasks")
+WDIR = os.path.join("/", "mnt", "volume", "dev", "EstimatingInspectionTasks")
 #WDIR = os.path.join("D:\\", "dev", "EstimatingInspectionTasks")
 #WDIR = os.path.join("C:\\", "andreas_lokal", "github", "EstimatingInspectionTasks")
 
-DS_ROOT_PATH = os.path.join("/", "run", "media", "andy", "Volume", "evias_expmts")
+DS_ROOT_PATH = os.path.join("/", "mnt", "volume", "dev", "volume", "evias_expmts")
 #DS_ROOT_PATH = os.path.join("D:\\", "evias_expmts")
 
 RESULTS_PATH = os.path.join(WDIR, "results")
@@ -16,14 +16,14 @@ SIMILARITY_DIR = os.path.join(RESULTS_PATH, "similarity")
 #                                    "cross_application/manual_hdev/mean")
 #GITHUB_CROSS_APPLICATION_RESULTS_MEAN = os.path.join("D:\\", "dev", "experiments","test",
 #                                    "cross_application","manual_hdev","mean")
-GITHUB_CROSS_APPLICATION_RESULTS_MEAN = os.path.join("/", "run", "media", "andy", "Volume", "dev", "experiments","test",
+GITHUB_CROSS_APPLICATION_RESULTS_MEAN = os.path.join("/", "mnt", "volume", "dev", "experiments","test",
                                     "cross_application","manual_hdev","mean")
 
 #GITHUB_CROSS_APPLICATION_RESULTS_BEST = ("https://api.github.com/repos/anmarchio/experiments/contents/test/"
 #                                    "cross_application/manual_hdev/best")
 #GITHUB_CROSS_APPLICATION_RESULTS_BEST = os.path.join("D:\\", "dev", "experiments","test",
 #                                    "cross_application","manual_hdev","best")
-GITHUB_CROSS_APPLICATION_RESULTS_BEST = os.path.join("/", "run", "media", "andy", "Volume", "dev", "experiments","test",
+GITHUB_CROSS_APPLICATION_RESULTS_BEST = os.path.join("/", "mnt", "volume", "dev", "experiments","test",
                                     "cross_application","manual_hdev","best")
 
 SIMILARITY_VALUES_FILE = "20250803_resnet_embedding.csv"

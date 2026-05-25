@@ -68,26 +68,21 @@ For this purpose, multiple image complexity and structural descriptors were extr
 
 Pairwise dataset similarity was computed using cosine similarity:
 
-\[
-C_{sim}(A,B)=\frac{A \cdot B}{\|A\|\|B\|}
-\]
+C_sim(A,B) = (A · B) / (||A|| ||B||)
 
-where \(A\) and \(B\) represent feature vectors of two datasets.
-
-The relationship between similarity and cross-application performance (\(MCC\)) was analyzed using several statistical methods.
+where A and B represent feature vectors of two datasets.
 
 ### Correlation Analysis
 
-Linear and monotonic dependencies were analyzed using Pearson and Spearman correlation coefficients:
+Linear and monotonic dependencies between similarity and cross-application performance (MCC) were analyzed using Pearson and Spearman correlation coefficients.
 
-\[
-r=\frac{\sum (x_i-\bar{x})(y_i-\bar{y})}
-{\sqrt{\sum (x_i-\bar{x})^2 \sum (y_i-\bar{y})^2}}
-\]
+Pearson correlation:
 
-\[
-\rho = 1 - \frac{6\sum d_i^2}{n(n^2-1)}
-\]
+r = Σ((xᵢ - x̄)(yᵢ - ȳ)) / √(Σ(xᵢ - x̄)² · Σ(yᵢ - ȳ)²)
+
+Spearman rank correlation:
+
+ρ = 1 - (6 Σdᵢ²) / (n(n² - 1))
 
 The analysis was performed globally and additionally within multiple similarity bins to evaluate local transfer behavior at different similarity ranges.
 
@@ -95,59 +90,23 @@ The analysis was performed globally and additionally within multiple similarity 
 
 Linear regression models were used to estimate the influence of similarity metrics on transfer performance:
 
-\[
-y = \beta_0 + \beta_1 x + \epsilon
-\]
+y = β₀ + β₁x + ε
 
 where:
-- \(x\) denotes similarity,
-- \(y\) denotes cross-application MCC,
-- \(\beta_1\) represents the transfer effect.
+- x denotes similarity,
+- y denotes cross-application MCC,
+- β₁ represents the transfer effect.
 
 Model quality was evaluated using:
 
-\[
-R^2 = 1 - \frac{SS_{res}}{SS_{tot}}
-\]
+R² = 1 - (SS_res / SS_tot)
 
 Residual diagnostics included:
 - Durbin-Watson test
 - Jarque-Bera test
 - Omnibus normality test
 
-### Bayesian Regression
-
-Bayesian linear regression was applied to estimate posterior distributions of transfer effects:
-
-\[
-y_i \sim \mathcal{N}(\mu_i,\sigma)
-\]
-
-\[
-\mu_i = \alpha + \beta x_i
-\]
-
-with priors:
-
-\[
-\alpha,\beta \sim \mathcal{N}(0,1)
-\]
-
-\[
-\sigma \sim \text{HalfNormal}(1)
-\]
-
-Posterior estimation was performed using MCMC sampling.
-
-### Mann-Whitney U Test
-
-To compare transferability between low-, medium-, and high-similarity groups, a one-sided Mann-Whitney U test was applied:
-
-\[
-U = n_1 n_2 + \frac{n_1(n_1+1)}{2} - R_1
-\]
-
-### Transferability Analysis
+## Transferability Analysis
 
 In addition to regression and correlation analysis, pipeline transferability statistics were computed, including:
 - Mean cross-application MCC
@@ -158,8 +117,7 @@ In addition to regression and correlation analysis, pipeline transferability sta
 
 Pipelines were ranked according to transfer performance and robustness across datasets.
 
-A detailed overview of all statistical results, correlations, regression summaries, transfer scores, and visualizations is provided in `Results.md`. :contentReference[oaicite:0]{index=0} :contentReference[oaicite:1]{index=1}
-
+Detailed numerical results, regression summaries, transfer statistics, similarity-bin analyses, and visualizations are provided in `Results.md`.
 ## Detailed Results
 
 See: [Results.md](Results.md).

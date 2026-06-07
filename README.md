@@ -23,22 +23,22 @@ This study proposes a novel approach to improve the efficiency of segmentation m
 
 ```bash
 EstimatingInspectionTasks/
-├── data/                  # context data for potential model fitting
-├── results/               # Output directory for experiment results
-├── src/                   # source code for feature extraction, similarity computation, and analysis
-├── .python-version.py     # Sets a specific python version this repo is created for
-├── env_vars.py            # Environment variables & file paths
-├── experiment_params_data.py  # Dataset configurations & experiment settings
-├── LICENSE                # license information
-├── main.py                # Main entry point to run the pipeline
-├── README.md              # Project documentation
-├── requirements.txt       # requirements file
+├── data/                     # context data for potential model fitting
+├── results/                  # Output directory for experiment results
+├── src/                      # source code for feature extraction, similarity computation, and analysis
+├── env_vars.py               # Environment variables & file paths
+├── experiment_params_data.py # Dataset configurations & experiment settings
+├── LICENSE                   # license information
+├── main.py                   # Main entry point to run the pipeline
+├── README.md                 # Project documentation
+├── requirements.txt          # requirements file
+├── RESULTS.md                # Detailed statistical results sorted by metrics and dataset
 ```
 
 ## Approach Overview
 Previous to this study, research has been conducted on image filter pipelines evolved by mean of CGP:
-* ACSOS 2023
-* Dissertation 2026
+* [“Evolving Processing Pipelines for Industrial Imaging with Cartesian Genetic Programming.” 2023. IEEE Conference Publication | IEEE Xplore. September 25, 2023.](https://ieeexplore.ieee.org/abstract/document/10336022)
+* [Margraf, Andreas. 2026. “Evolutionary Learning for Data Processing Pipelines in Industrial Monitoring.” PhD Dissertation, University of Augsburg.](https://opus.bibliothek.uni-augsburg.de/opus4/frontdoor/index/index/docId/130569)
 
 In Follow-up experiments different complexity image features are extracted from segmentation datasets 
 These are utilized to compute similarities and evaluate cross-application (from dataset i to dataset j) 
@@ -118,9 +118,19 @@ In addition to regression and correlation analysis, pipeline transferability sta
 Pipelines were ranked according to transfer performance and robustness across datasets.
 
 Detailed numerical results, regression summaries, transfer statistics, similarity-bin analyses, and visualizations are provided in `Results.md`.
-## Detailed Results
 
-See: [Results.md](Results.md).
+## Detailed Statistical Results
+
+For detailed statistical insights see: 
+
+[>> RESULTS.md <<](RESULTS.md)
+
+[RESULTS.md](RESULTS.md) contains a concise summary of the CGP pipeline cross-application experiments, 
+including similarity matrices and distributions 
+for multiple complexity metrics (CNN, edge, texture, entropy, frequency, superpixel) 
+as well as the regression and logit results, 
+correlation analyses on the cosine similarity `Cos_Sim` between 
+cross-pipeline performance (MCC) and the image complexity and related visualizations.
 
 ## 📖 How to Cite
 If you use this code or ideas from our paper, please cite:

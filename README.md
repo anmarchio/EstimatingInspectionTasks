@@ -136,13 +136,13 @@ cross-pipeline performance (MCC) and the image complexity and related visualizat
 If you use this code or ideas from our paper, please cite:
 
 ```bibtex
-@misc{margraf2026have,
- title   = {Have I Solved This Before? Retrieving Similar Segmentation Problems for Evolutionary Learning},
- author  = {Margraf, Andreas and Cui, Henning and Haehner, Joerg},
- year    = {2026},
- eprint  = {0000.00000},
- archivePrefix  = {arXiv},
- primaryClass  = {cs.CS},
- url     = {https://arxiv.org/abs/0000.00000}
+@misc{margraf2026isolvedbeforeretrieving,
+      title={Have I Solved This Before? Retrieving Similar Segmentation Problems for Evolutionary Learning}, 
+      author={Andreas Margraf and Henning Cui and Jörg Hähner},
+      year={2026},
+      eprint={2606.08155},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2606.08155}, 
 }
 ```
